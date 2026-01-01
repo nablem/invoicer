@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    ports:
+      - "3001:3000"
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080" # Web UI
+      - "1025:1025" # SMTP
+
+  # docuseal:
+  #   image: docuseal/docuseal:latest
+  #   ports:
+  #     - "3002:3000"
+  #   environment:
+  #     - DATABASE_URL=sqlite3://docuseal.db
+  #   volumes:
+  #     - docuseal_data:/data
+
+# volumes:
+#   docuseal_data:

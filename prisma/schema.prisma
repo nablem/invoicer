@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  billingAddress String?
+  phone          String?
+  vatNumber      String?
+  quotes         Quote[]
+  bills          Bill[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Quote {
+  id        String      @id @default(uuid())
+  number    String      @unique
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id])
+  date      DateTime    @default(now())
+  dueDate   DateTime?
+  status    String      @default("DRAFT") // DRAFT, SENT, ACCEPTED, REJECTED
+  items     QuoteItem[]
+  total     Float       @default(0)
+  currency  String      @default("EUR")
+  notes     String?
+  bills     Bill[]      @relation("QuoteToBill")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model QuoteItem {
+  id          String @id @default(uuid())
+  quoteId     String
+  quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float
+  price       Float
+  total       Float
+}
+
+model Bill {
+  id               String     @id @default(uuid())
+  number           String     @unique
+  clientId         String
+  client           Client     @relation(fields: [clientId], references: [id])
+  quoteId          String?
+  quote            Quote?     @relation("QuoteToBill", fields: [quoteId], references: [id])
+  date             DateTime   @default(now())
+  dueDate          DateTime?
+  status           String     @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  items            BillItem[]
+  total            Float      @default(0)
+  currency         String     @default("EUR")
+  notes            String?
+  
+  // Recurring logic
+  isRecurring      Boolean    @default(false)
+  recurringInterval String?   // e.g., "MONTHLY", "YEARLY"
+  nextRecurringDate DateTime?
+
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model BillItem {
+  id          String @id @default(uuid())
+  billId      String
+  bill        Bill   @relation(fields: [billId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float
+  price       Float
+  total       Float
+}

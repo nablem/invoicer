@@ -1,0 +1,45 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 600px;
+}
+
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.input {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 1rem;
+}
+
+.input:focus {
+    outline: 2px solid var(--primary);
+    border-color: transparent;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.submit {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    margin-top: 1rem;
+}

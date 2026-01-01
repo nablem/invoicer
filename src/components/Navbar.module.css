@@ -1,0 +1,32 @@
+.header {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.link {
+    color: var(--muted-foreground);
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.link:hover {
+    color: var(--foreground);
+}
+
+.active {
+    color: var(--foreground);
+    font-weight: 500;
+}

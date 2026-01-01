@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            padding: 40px;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .meta {
+            text-align: right;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .client-info {
+            margin-bottom: 40px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            text-align: left;
+            border-bottom: 2px solid #eee;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .total-row {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">FreelanceHub</div>
+        <div class="meta">
+            <div>Bill #: <strong>{{number}}</strong></div>
+            <div>Date: {{date}}</div>
+            {{#if dueDate}}<div>Due Date: {{dueDate}}</div>{{/if}}
+        </div>
+    </div>
+
+    <div class="client-info">
+        <div class="bold">To:</div>
+        <div>{{client.name}}</div>
+        <div>{{client.email}}</div>
+        <div>{{client.billingAddress}}</div>
+        {{#if client.vatNumber}}<div>VAT: {{client.vatNumber}}</div>{{/if}}
+    </div>
+
+    <div class="title">INVOICE</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: right;">Quantity</th>
+                <th style="text-align: right;">Price</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each items}}
+            <tr>
+                <td>{{description}}</td>
+                <td style="text-align: right;">{{quantity}}</td>
+                <td style="text-align: right;">{{price}}</td>
+                <td style="text-align: right;">{{total}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="total-row">Total: {{total}} {{currency}}</div>
+    </div>
+
+    {{#if notes}}
+    <div style="margin-top: 40px;">
+        <div class="bold">Notes:</div>
+        <p>{{notes}}</p>
+    </div>
+    {{/if}}
+
+    <div class="footer">
+        Thank you for your business!
+    </div>
+</body>
+
+</html>
