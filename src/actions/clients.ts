@@ -6,18 +6,24 @@ import { redirect } from "next/navigation";
 
 export async function createClient(formData: FormData) {
     const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const phone = formData.get("phone") as string;
-    const billingAddress = formData.get("billingAddress") as string;
-    const vatNumber = formData.get("vatNumber") as string;
-    const companyId = formData.get("companyId") as string;
+    const email = (formData.get("email") as string) || null;
+    const phone = (formData.get("phone") as string) || null;
+    const address = (formData.get("address") as string) || null;
+    const city = (formData.get("city") as string) || null;
+    const zipCode = (formData.get("zipCode") as string) || null;
+    const country = (formData.get("country") as string) || null;
+    const vatNumber = (formData.get("vatNumber") as string) || null;
+    const companyId = (formData.get("companyId") as string) || null;
 
     await prisma.client.create({
         data: {
             name,
             email,
             phone,
-            billingAddress,
+            address,
+            city,
+            zipCode,
+            country,
             vatNumber,
             companyId,
         },
@@ -29,11 +35,14 @@ export async function createClient(formData: FormData) {
 
 export async function updateClient(id: string, formData: FormData) {
     const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const phone = formData.get("phone") as string;
-    const billingAddress = formData.get("billingAddress") as string;
-    const vatNumber = formData.get("vatNumber") as string;
-    const companyId = formData.get("companyId") as string;
+    const email = (formData.get("email") as string) || null;
+    const phone = (formData.get("phone") as string) || null;
+    const address = (formData.get("address") as string) || null;
+    const city = (formData.get("city") as string) || null;
+    const zipCode = (formData.get("zipCode") as string) || null;
+    const country = (formData.get("country") as string) || null;
+    const vatNumber = (formData.get("vatNumber") as string) || null;
+    const companyId = (formData.get("companyId") as string) || null;
 
     await prisma.client.update({
         where: { id },
@@ -41,7 +50,10 @@ export async function updateClient(id: string, formData: FormData) {
             name,
             email,
             phone,
-            billingAddress,
+            address,
+            city,
+            zipCode,
+            country,
             vatNumber,
             companyId,
         },

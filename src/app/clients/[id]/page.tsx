@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import ClientForm from "@/components/ClientForm";
 import styles from "../page.module.css";
+import { getDictionary } from "@/lib/i18n";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -10,6 +11,8 @@ interface PageProps {
 
 export default async function EditClientPage({ params }: PageProps) {
     const { id } = await params;
+    const { dict } = await getDictionary();
+
     const client = await prisma.client.findUnique({
         where: { id },
     });
@@ -21,12 +24,10 @@ export default async function EditClientPage({ params }: PageProps) {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Edit Client</h1>
-                <Link href="/clients" style={{ color: "var(--muted-foreground)" }}>
-                    Back
-                </Link>
+                <h1 className={styles.title}>{dict.clients.edit_client}</h1>
+
             </div>
-            <ClientForm client={client} />
+            <ClientForm client={client} dict={dict} />
         </div>
     );
 }

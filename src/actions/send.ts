@@ -22,6 +22,10 @@ export async function sendQuote(quoteId: string) {
     };
     const pdfBuffer = await generatePdf("quote", data);
 
+    if (!quote.client.email) {
+        throw new Error("Client has no email address");
+    }
+
     // Send Email
     await sendEmail(
         { email: quote.client.email, name: quote.client.name },
@@ -55,6 +59,10 @@ export async function sendBill(billId: string) {
         items: bill.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
     };
     const pdfBuffer = await generatePdf("bill", data);
+
+    if (!bill.client.email) {
+        throw new Error("Client has no email address");
+    }
 
     // Send Email
     await sendEmail(

@@ -35,11 +35,45 @@
     min-height: 100px;
 }
 
-.submit {
-    background: var(--primary);
-    color: var(--primary-foreground);
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 1rem;
     border-radius: var(--radius);
     font-weight: 600;
     margin-top: 1rem;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: opacity 0.2s;
+    margin-right: 1rem;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+.secondaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    margin-top: 1rem;
+    color: var(--foreground);
+    background: var(--muted);
+    transition: background 0.2s;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.secondaryButton:hover {
+    background: #e5e5e5;
 }

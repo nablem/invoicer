@@ -1,181 +1,233 @@
 "use client";
 
-import { useState } from "react";
-import { createQuote, updateQuote, type QuoteInput } from "@/actions/quotes";
+import { createQuote, updateQuote } from "@/actions/quotes";
 import styles from "./QuoteForm.module.css";
-import type { Client, Quote, QuoteItem } from "@prisma/client";
+import { useState } from "react";
+import Link from "next/link";
+import { Dictionary } from "@/lib/dictionaries";
+import SmartTextarea from "./SmartTextarea";
 
-interface QuoteFormProps {
-    clients: Client[];
-    quote?: Quote & { items: QuoteItem[] };
-}
-
-type FormItem = {
-    key: string | number;
+interface FormItem {
+    id?: string;
+    title?: string;
     description: string;
     quantity: number;
     price: number;
-};
+    total: number;
+}
 
-export default function QuoteForm({ clients, quote }: QuoteFormProps) {
-    const [clientId, setClientId] = useState(quote?.clientId || "");
-    const [date, setDate] = useState(quote?.date ? new Date(quote.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
-    const [dueDate, setDueDate] = useState(quote?.dueDate ? new Date(quote.dueDate).toISOString().split('T')[0] : "");
+interface QuoteFormProps {
+    clients: { id: string; name: string }[];
+    quote?: {
+        id: string;
+        clientId: string;
+        date: Date;
+        dueDate: Date | null;
+        number: string;
+        items: FormItem[];
+        notes: string | null;
+    };
+    dict: Dictionary;
+    convertAction?: any;
+}
+
+export default function QuoteForm({ clients, quote, dict, convertAction }: QuoteFormProps) {
+    const isEditing = !!quote;
+    const action = isEditing ? updateQuote.bind(null, quote.id) : createQuote;
+
+    // Default expiry date is 3 months from now
+    const defaultExpiry = new Date();
+    defaultExpiry.setMonth(defaultExpiry.getMonth() + 3);
+    const defaultExpiryStr = defaultExpiry.toISOString().split('T')[0];
+
+    // Initialize items with one empty row if creating new, or existing items
     const [items, setItems] = useState<FormItem[]>(
-        quote?.items.map(i => ({
-            key: i.id,
-            description: i.description,
-            quantity: i.quantity,
-            price: i.price
-        })) || [{ key: Date.now(), description: "", quantity: 1, price: 0 }]
+        quote?.items || [{ title: "", description: "", quantity: 1, price: 0, total: 0 }]
     );
-    const [notes, setNotes] = useState(quote?.notes || "");
 
-    const handleAddItem = () => {
-        setItems([...items, { key: Date.now(), description: "", quantity: 1, price: 0 }]);
+    const addItem = () => {
+        setItems([...items, { title: "", description: "", quantity: 1, price: 0, total: 0 }]);
     };
 
-    const handleRemoveItem = (index: number) => {
-        setItems(items.filter((_, i) => i !== index));
-    };
-
-    const handleItemChange = (index: number, field: keyof typeof items[0], value: string | number) => {
+    const updateItem = (index: number, field: keyof FormItem, value: any) => {
         const newItems = [...items];
-        newItems[index] = { ...newItems[index], [field]: value };
+        const item = { ...newItems[index] };
+
+        if (field === "quantity" || field === "price") {
+            item[field] = Number(value);
+            item.total = item.quantity * item.price;
+        } else if (field === "description" || field === "title") {
+            item[field] = value;
+        }
+
+        newItems[index] = item;
         setItems(newItems);
     };
 
-    const calculateTotal = () => {
-        return items.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.price)), 0);
+    const removeItem = (index: number) => {
+        setItems(items.filter((_, i) => i !== index));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!clientId) {
-            alert("Please select a client");
-            return;
-        }
-
-        const data: QuoteInput = {
-            clientId,
-            date: new Date(date),
-            dueDate: dueDate ? new Date(dueDate) : undefined,
-            items: items.map(item => ({
-                description: item.description,
-                quantity: Number(item.quantity),
-                price: Number(item.price),
-            })),
-            notes,
-        };
-
-        if (quote) {
-            await updateQuote(quote.id, data);
-        } else {
-            await createQuote(data);
-        }
-    };
+    const total = items.reduce((sum, item) => sum + item.total, 0);
 
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Client & Dates</h3>
-                <div className={styles.row}>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Client</label>
-                        <select
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            className={styles.select}
-                            required
-                        >
-                            <option value="">Select Client</option>
-                            {clients.map((client) => (
-                                <option key={client.id} value={client.id}>
-                                    {client.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Date</label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className={styles.input}
-                            required
-                        />
-                    </div>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Due Date</label>
-                        <input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className={styles.input}
-                        />
-                    </div>
+        <form action={action} className={styles.form}>
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label htmlFor="clientId" className={styles.label}>
+                        {dict.quotes.form.client}
+                    </label>
+                    <select
+                        id="clientId"
+                        name="clientId"
+                        required
+                        defaultValue={quote?.clientId || ""}
+                        className={styles.select}
+                    >
+                        <option value="">{dict.quotes.form.select_client}</option>
+                        {clients.map((client) => (
+                            <option key={client.id} value={client.id}>
+                                {client.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Items</h3>
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label htmlFor="date" className={styles.label}>
+                        {dict.quotes.form.date}
+                    </label>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        required
+                        defaultValue={quote ? new Date(quote.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                        className={styles.input}
+                    />
+                </div>
+                <div className={styles.group}>
+                    <label htmlFor="dueDate" className={styles.label}>
+                        {dict.quotes.form.due_date}
+                    </label>
+                    <input
+                        type="date"
+                        id="dueDate"
+                        name="dueDate"
+                        defaultValue={quote?.dueDate ? new Date(quote.dueDate).toISOString().split('T')[0] : defaultExpiryStr}
+                        className={styles.input}
+                    />
+                </div>
+            </div>
+
+            <div className={styles.itemsSection}>
+                <h3>{dict.quotes.form.items_section}</h3>
+                <div className={styles.itemsHeader}>
+                    <div style={{ flex: 3 }}>{dict.quotes.form.description}</div>
+                    <div style={{ flex: 1 }}>{dict.quotes.form.qty}</div>
+                    <div style={{ flex: 1 }}>{dict.quotes.form.price}</div>
+                    <div style={{ flex: 1 }}>{dict.common.total}</div>
+                    <div style={{ width: '40px' }}></div>
+                </div>
+
                 {items.map((item, index) => (
-                    <div key={item.key || index} className={styles.itemRow}>
-                        <input
-                            placeholder="Description"
-                            value={item.description}
-                            onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                            className={styles.input}
-                            required
-                        />
+                    <div key={index} className={styles.itemRow} style={{ alignItems: 'flex-start' }}>
+                        <input type="hidden" name={`title_${index}`} value={item.title || ""} />
+                        <input type="hidden" name={`description_${index}`} value={item.description} />
+                        <input type="hidden" name={`quantity_${index}`} value={item.quantity} />
+                        <input type="hidden" name={`price_${index}`} value={item.price} />
+
+                        <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <input
+                                type="text"
+                                placeholder={dict.quotes.form.title}
+                                value={item.title || ""}
+                                onChange={(e) => updateItem(index, "title", e.target.value)}
+                                className={styles.input}
+                            />
+                            <SmartTextarea
+                                placeholder={dict.quotes.form.description}
+                                value={item.description}
+                                onValueChange={(val) => updateItem(index, "description", val)}
+                                className={styles.textarea}
+                                style={{ minHeight: '80px', resize: 'vertical' }}
+                                required
+                            />
+                        </div>
                         <input
                             type="number"
-                            placeholder="Qty"
+                            min="1"
+                            placeholder={dict.quotes.form.qty}
                             value={item.quantity}
-                            onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
+                            onChange={(e) => updateItem(index, "quantity", e.target.value)}
                             className={styles.input}
-                            min="0.01"
-                            step="0.01"
-                            required
+                            style={{ flex: 1 }}
                         />
                         <input
                             type="number"
-                            placeholder="Price"
-                            value={item.price}
-                            onChange={(e) => handleItemChange(index, "price", Number(e.target.value))}
-                            className={styles.input}
                             min="0"
                             step="0.01"
-                            required
+                            placeholder={dict.quotes.form.price}
+                            value={item.price}
+                            onChange={(e) => updateItem(index, "price", e.target.value)}
+                            className={styles.input}
+                            style={{ flex: 1 }}
                         />
-                        <div style={{ marginLeft: "auto" }}>
-                            {(Number(item.quantity) * Number(item.price)).toFixed(2)}
+                        <div style={{ flex: 1, fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
+                            {item.total.toFixed(2)}
                         </div>
-                        <button type="button" onClick={() => handleRemoveItem(index)} className={styles.removeButton}>
-                            ✕
+                        <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
+                            ×
                         </button>
                     </div>
                 ))}
-                <button type="button" onClick={handleAddItem} className={styles.secondaryButton} style={{ width: "fit-content" }}>
-                    + Add Item
+
+                <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
+                    {dict.quotes.form.add_item}
                 </button>
-                <div className={styles.total}>Total: {calculateTotal().toFixed(2)} EUR</div>
+
+                <div className={styles.totalRow}>
+                    <span>{dict.common.total}:</span>
+                    <span>{total.toFixed(2)}</span>
+                </div>
             </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Notes</h3>
+            <div className={styles.group}>
+                <label htmlFor="notes" className={styles.label}>
+                    {dict.quotes.form.notes_section}
+                </label>
                 <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className={styles.input}
-                    style={{ minHeight: "100px", resize: "vertical" }}
+                    id="notes"
+                    name="notes"
+                    defaultValue={quote?.notes || ""}
+                    className={styles.textarea}
+                    rows={4}
                 />
             </div>
 
-            <button type="submit" className={styles.button}>
-                {quote ? "Update Quote" : "Create Quote"}
-            </button>
+            <div className={styles.actions} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <Link href="/quotes" className={styles.secondaryButton}>
+                        {dict.common.back}
+                    </Link>
+                    <button type="submit" className={styles.button}>
+                        {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
+                    </button>
+                </div>
+
+                {/* Convert Button */}
+                {convertAction && (
+                    <button
+                        formAction={convertAction}
+                        className={styles.button}
+                        style={{ background: '#f59e0b', color: 'white' }}
+                    >
+                        {dict.quotes.convert}
+                    </button>
+                )}
+            </div>
         </form>
     );
 }

@@ -1,211 +1,251 @@
 "use client";
 
-import { useState } from "react";
-import { createBill, updateBill, type BillInput } from "@/actions/bills";
+import { createBill, updateBill } from "@/actions/bills";
 import styles from "./BillForm.module.css";
-import type { Client, Bill, BillItem } from "@prisma/client";
+import { useState } from "react";
+import Link from "next/link";
+import { Dictionary } from "@/lib/dictionaries";
+import SmartTextarea from "./SmartTextarea";
 
-interface BillFormProps {
-    clients: Client[];
-    bill?: Bill & { items: BillItem[] };
-}
-
-type FormItem = {
-    key: string | number;
+interface FormItem {
+    id?: string;
+    title?: string;
     description: string;
     quantity: number;
     price: number;
-};
+    total: number;
+}
 
-export default function BillForm({ clients, bill }: BillFormProps) {
-    const [clientId, setClientId] = useState(bill?.clientId || "");
-    const [date, setDate] = useState(bill?.date ? new Date(bill.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
-    const [dueDate, setDueDate] = useState(bill?.dueDate ? new Date(bill.dueDate).toISOString().split('T')[0] : "");
+interface BillFormProps {
+    clients: { id: string; name: string }[];
+    bill?: {
+        id: string;
+        clientId: string;
+        date: Date;
+        dueDate: Date | null;
+        number: string;
+        items: FormItem[];
+        notes: string | null;
+        isRecurring: boolean;
+        recurringInterval: string | null;
+    };
+    dict: Dictionary;
+}
+
+export default function BillForm({ clients, bill, dict }: BillFormProps) {
+    const isEditing = !!bill;
+    const action = isEditing ? updateBill.bind(null, bill.id) : createBill;
+
+    // Default due date is 30 days from now
+    const defaultDueDate = new Date();
+    defaultDueDate.setDate(defaultDueDate.getDate() + 30);
+    const defaultDueDateStr = defaultDueDate.toISOString().split('T')[0];
+
+    // Initialize items with one empty row if creating new, or existing items
     const [items, setItems] = useState<FormItem[]>(
-        bill?.items.map(i => ({
-            key: i.id,
-            description: i.description,
-            quantity: i.quantity,
-            price: i.price
-        })) || [{ key: Date.now(), description: "", quantity: 1, price: 0 }]
+        bill?.items || [{ title: "", description: "", quantity: 1, price: 0, total: 0 }]
     );
-    const [notes, setNotes] = useState(bill?.notes || "");
     const [isRecurring, setIsRecurring] = useState(bill?.isRecurring || false);
-    const [recurringInterval, setRecurringInterval] = useState(bill?.recurringInterval || "MONTHLY");
 
-    const handleAddItem = () => {
-        setItems([...items, { key: Date.now(), description: "", quantity: 1, price: 0 }]);
+    const addItem = () => {
+        setItems([...items, { title: "", description: "", quantity: 1, price: 0, total: 0 }]);
     };
 
-    const handleRemoveItem = (index: number) => {
-        setItems(items.filter((_, i) => i !== index));
-    };
-
-    const handleItemChange = (index: number, field: keyof typeof items[0], value: string | number) => {
+    const updateItem = (index: number, field: keyof FormItem, value: any) => {
         const newItems = [...items];
-        newItems[index] = { ...newItems[index], [field]: value };
+        const item = { ...newItems[index] };
+
+        if (field === "quantity" || field === "price") {
+            item[field] = Number(value);
+            item.total = item.quantity * item.price;
+        } else if (field === "description" || field === "title") {
+            item[field] = value;
+        }
+
+        newItems[index] = item;
         setItems(newItems);
     };
 
-    const calculateTotal = () => {
-        return items.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.price)), 0);
+    const removeItem = (index: number) => {
+        setItems(items.filter((_, i) => i !== index));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!clientId) {
-            alert("Please select a client");
-            return;
-        }
-
-        const data: BillInput = {
-            clientId,
-            date: new Date(date),
-            dueDate: dueDate ? new Date(dueDate) : undefined,
-            items: items.map(item => ({
-                description: item.description,
-                quantity: Number(item.quantity),
-                price: Number(item.price),
-            })),
-            notes,
-            isRecurring,
-            recurringInterval: isRecurring ? recurringInterval : undefined,
-        };
-
-        if (bill) {
-            await updateBill(bill.id, data);
-        } else {
-            await createBill(data);
-        }
-    };
+    const total = items.reduce((sum, item) => sum + item.total, 0);
 
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Client & Dates</h3>
-                <div className={styles.row}>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Client</label>
-                        <select
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            className={styles.select}
-                            required
-                        >
-                            <option value="">Select Client</option>
-                            {clients.map((client) => (
-                                <option key={client.id} value={client.id}>
-                                    {client.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Date</label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className={styles.input}
-                            required
-                        />
-                    </div>
-                    <div className={styles.col}>
-                        <label className={styles.label}>Due Date</label>
-                        <input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className={styles.input}
-                        />
-                    </div>
+        <form action={action} className={styles.form}>
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label htmlFor="clientId" className={styles.label}>
+                        {dict.quotes.form.client}
+                    </label>
+                    <select
+                        id="clientId"
+                        name="clientId"
+                        required
+                        defaultValue={bill?.clientId || ""}
+                        className={styles.select}
+                    >
+                        <option value="">{dict.quotes.form.select_client}</option>
+                        {clients.map((client) => (
+                            <option key={client.id} value={client.id}>
+                                {client.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
-            <div className={styles.section}>
-                <div className={styles.row} style={{ alignItems: "center" }}>
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label htmlFor="date" className={styles.label}>
+                        {dict.quotes.form.date}
+                    </label>
                     <input
-                        type="checkbox"
-                        id="recurring"
-                        checked={isRecurring}
-                        onChange={(e) => setIsRecurring(e.target.checked)}
-                        className={styles.checkbox}
+                        type="date"
+                        id="date"
+                        name="date"
+                        required
+                        defaultValue={bill ? new Date(bill.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                        className={styles.input}
                     />
-                    <label htmlFor="recurring" className={styles.label}>Recurring Bill</label>
-
-                    {isRecurring && (
-                        <select
-                            value={recurringInterval}
-                            onChange={(e) => setRecurringInterval(e.target.value)}
-                            className={styles.select}
-                        >
-                            <option value="WEEKLY">Weekly</option>
-                            <option value="MONTHLY">Monthly</option>
-                            <option value="QUARTERLY">Quarterly</option>
-                            <option value="YEARLY">Yearly</option>
-                        </select>
-                    )}
+                </div>
+                <div className={styles.group}>
+                    <label htmlFor="dueDate" className={styles.label}>
+                        {dict.bills.form.due_date}
+                    </label>
+                    <input
+                        type="date"
+                        id="dueDate"
+                        name="dueDate"
+                        defaultValue={bill?.dueDate ? new Date(bill.dueDate).toISOString().split('T')[0] : defaultDueDateStr}
+                        className={styles.input}
+                    />
                 </div>
             </div>
+            <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                    type="checkbox"
+                    id="isRecurring"
+                    name="isRecurring"
+                    checked={isRecurring}
+                    onChange={(e) => setIsRecurring(e.target.checked)}
+                    style={{ width: 'auto' }}
+                />
+                <label htmlFor="isRecurring" className={styles.label} style={{ marginBottom: 0 }}>
+                    {dict.bills.recurring_bill}
+                </label>
+            </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Items</h3>
+            {isRecurring && (
+                <div className={styles.group}>
+                    <label htmlFor="recurringInterval" className={styles.label}>
+                        {dict.bills.recurring} Interval
+                    </label>
+                    <select
+                        id="recurringInterval"
+                        name="recurringInterval"
+                        defaultValue={bill?.recurringInterval || "MONTHLY"}
+                        className={styles.select}
+                    >
+                        <option value="WEEKLY">{dict.bills.intervals.weekly}</option>
+                        <option value="MONTHLY">{dict.bills.intervals.monthly}</option>
+                        <option value="QUARTERLY">{dict.bills.intervals.quarterly}</option>
+                        <option value="YEARLY">{dict.bills.intervals.yearly}</option>
+                    </select>
+                </div>
+            )}
+
+            <div className={styles.itemsSection}>
+                <h3>{dict.quotes.form.items_section}</h3>
+                <div className={styles.itemsHeader}>
+                    <div style={{ flex: 3 }}>{dict.quotes.form.description}</div>
+                    <div style={{ flex: 1 }}>{dict.quotes.form.qty}</div>
+                    <div style={{ flex: 1 }}>{dict.quotes.form.price}</div>
+                    <div style={{ flex: 1 }}>{dict.common.total}</div>
+                    <div style={{ width: '40px' }}></div>
+                </div>
+
                 {items.map((item, index) => (
-                    <div key={item.key || index} className={styles.itemRow}>
-                        <input
-                            placeholder="Description"
-                            value={item.description}
-                            onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                            className={styles.input}
-                            required
-                        />
+                    <div key={index} className={styles.itemRow} style={{ alignItems: 'flex-start' }}>
+                        <input type="hidden" name={`title_${index}`} value={item.title || ""} />
+                        <input type="hidden" name={`description_${index}`} value={item.description} />
+                        <input type="hidden" name={`quantity_${index}`} value={item.quantity} />
+                        <input type="hidden" name={`price_${index}`} value={item.price} />
+
+                        <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <input
+                                type="text"
+                                placeholder={dict.quotes.form.title}
+                                value={item.title || ""}
+                                onChange={(e) => updateItem(index, "title", e.target.value)}
+                                className={styles.input}
+                            />
+                            <SmartTextarea
+                                placeholder={dict.quotes.form.description}
+                                value={item.description}
+                                onValueChange={(val) => updateItem(index, "description", val)}
+                                className={styles.textarea}
+                                style={{ minHeight: '80px', resize: 'vertical' }}
+                                required
+                            />
+                        </div>
                         <input
                             type="number"
-                            placeholder="Qty"
+                            min="1"
+                            placeholder={dict.quotes.form.qty}
                             value={item.quantity}
-                            onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
+                            onChange={(e) => updateItem(index, "quantity", e.target.value)}
                             className={styles.input}
-                            min="0.01"
-                            step="0.01"
-                            required
+                            style={{ flex: 1 }}
                         />
                         <input
                             type="number"
-                            placeholder="Price"
-                            value={item.price}
-                            onChange={(e) => handleItemChange(index, "price", Number(e.target.value))}
-                            className={styles.input}
                             min="0"
                             step="0.01"
-                            required
+                            placeholder={dict.quotes.form.price}
+                            value={item.price}
+                            onChange={(e) => updateItem(index, "price", e.target.value)}
+                            className={styles.input}
+                            style={{ flex: 1 }}
                         />
-                        <div style={{ marginLeft: "auto" }}>
-                            {(Number(item.quantity) * Number(item.price)).toFixed(2)}
+                        <div style={{ flex: 1, fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
+                            {item.total.toFixed(2)}
                         </div>
-                        <button type="button" onClick={() => handleRemoveItem(index)} className={styles.removeButton}>
-                            ✕
+                        <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
+                            ×
                         </button>
                     </div>
                 ))}
-                <button type="button" onClick={handleAddItem} className={styles.secondaryButton} style={{ width: "fit-content" }}>
-                    + Add Item
+
+                <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
+                    {dict.quotes.form.add_item}
                 </button>
-                <div className={styles.total}>Total: {calculateTotal().toFixed(2)} EUR</div>
+
+                <div className={styles.totalRow}>
+                    <span>{dict.common.total}:</span>
+                    <span>{total.toFixed(2)}</span>
+                </div>
             </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Notes</h3>
+            <div className={styles.group}>
+                <label htmlFor="notes" className={styles.label}>
+                    {dict.quotes.form.notes_section}
+                </label>
                 <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className={styles.input}
-                    style={{ minHeight: "100px", resize: "vertical" }}
+                    id="notes"
+                    name="notes"
+                    defaultValue={bill?.notes || ""}
+                    className={styles.textarea}
+                    rows={4}
                 />
             </div>
 
-            <button type="submit" className={styles.button}>
-                {bill ? "Update Bill" : "Create Bill"}
-            </button>
+            <div className={styles.actions}>
+                <button type="submit" className={styles.button}>
+                    {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
+                </button>
+            </div>
         </form>
     );
 }

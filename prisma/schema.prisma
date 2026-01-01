@@ -13,8 +13,11 @@ datasource db {
 model Client {
   id             String   @id @default(uuid())
   name           String
-  email          String   @unique
-  billingAddress String?
+  email          String?  @unique
+  address        String?
+  city           String?
+  zipCode        String?
+  country        String?
   phone          String?
   vatNumber      String?
   companyId      String?
@@ -45,6 +48,7 @@ model QuoteItem {
   id          String @id @default(uuid())
   quoteId     String
   quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  title       String?
   description String
   quantity    Float
   price       Float
@@ -79,8 +83,26 @@ model BillItem {
   id          String @id @default(uuid())
   billId      String
   bill        Bill   @relation(fields: [billId], references: [id], onDelete: Cascade)
+  title       String?
   description String
   quantity    Float
   price       Float
   total       Float
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String?
+  companyId   String?
+  vatNumber   String?
+  address     String?
+  city        String?
+  zipCode     String?
+  country     String?
+  email       String?
+  phone       String?
+  website     String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -5,27 +5,12 @@
     max-width: 800px;
 }
 
-.section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: var(--muted);
-    border-radius: var(--radius);
-}
-
-.sectionTitle {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
 .row {
     display: flex;
     gap: 1rem;
 }
 
-.col {
+.group {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -45,45 +30,117 @@
     background: var(--background);
     color: var(--foreground);
     font-size: 1rem;
+    width: 100%;
 }
 
-.checkbox {
-    width: 1.25rem;
-    height: 1.25rem;
+.textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.itemsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--muted);
+    border-radius: var(--radius);
+}
+
+.itemsHeader {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+    padding-right: 2rem;
 }
 
 .itemRow {
-    display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    display: flex;
     gap: 0.5rem;
-    align-items: end;
+    align-items: center;
 }
 
-.total {
-    text-align: right;
+.deleteButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2.5rem;
+    color: #ef4444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background 0.2s;
+    background: transparent;
+    border: none;
+}
+
+.deleteButton:hover {
+    background: #fee2e2;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
     font-weight: 600;
     font-size: 1.2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
     margin-top: 1rem;
 }
 
 .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.75rem 1.5rem;
     border-radius: var(--radius);
     font-weight: 500;
     background: var(--primary);
     color: var(--primary-foreground);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: opacity 0.2s;
+}
+
+.button:hover {
+    opacity: 0.9;
 }
 
 .secondaryButton {
-    padding: 0.5rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
     border-radius: var(--radius);
     font-weight: 500;
     background: var(--background);
-    border: 1px solid var(--border);
     color: var(--foreground);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.2s;
 }
 
-.removeButton {
-    color: red;
-    padding: 0.75rem;
+.secondaryButton:hover {
+    background: #e5e5e5;
 }

@@ -59,8 +59,8 @@
 }
 
 .status_SENT {
-    background: #e0f2fe;
-    color: #0284c7;
+    background: #f0fdf4;
+    color: #16a34a;
 }
 
 .status_PAID {
@@ -76,4 +76,44 @@
 .status_CANCELLED {
     background: #fef9c3;
     color: #854d0e;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    color: var(--primary-foreground);
+    background: var(--primary);
+    transition: opacity 0.2s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+.secondaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    color: var(--foreground);
+    background: var(--muted);
+    transition: background 0.2s;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.secondaryButton:hover {
+    background: #e5e5e5;
 }

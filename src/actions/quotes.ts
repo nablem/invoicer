@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export interface QuoteItemInput {
+    title?: string;
     description: string;
     quantity: number;
     price: number;
@@ -18,23 +19,60 @@ export interface QuoteInput {
     notes?: string;
 }
 
-export async function createQuote(data: QuoteInput) {
-    const total = data.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+// Helper to parse items from FormData
+function parseItems(formData: FormData): QuoteItemInput[] {
+    const items: QuoteItemInput[] = [];
+    const entries = Array.from(formData.entries());
+
+    // Find all indices
+    const indices = new Set<number>();
+    for (const [key] of entries) {
+        if (key.startsWith("description_")) {
+            const index = parseInt(key.split("_")[1]);
+            indices.add(index);
+        }
+    }
+
+    // Build items
+    for (const index of indices) {
+        const title = formData.get(`title_${index}`) as string;
+        const description = formData.get(`description_${index}`) as string;
+        const quantity = parseFloat(formData.get(`quantity_${index}`) as string || "0");
+        const price = parseFloat(formData.get(`price_${index}`) as string || "0");
+
+        if (description) {
+            items.push({ title, description, quantity, price });
+        }
+    }
+
+    return items;
+}
+
+export async function createQuote(formData: FormData) {
+    const clientId = formData.get("clientId") as string;
+    const date = new Date(formData.get("date") as string);
+    const dueDateStr = formData.get("dueDate") as string;
+    const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
+    const notes = formData.get("notes") as string;
+
+    const items = parseItems(formData);
+
+    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
 
     // Generate a simple quote number (e.g. Q-TIMESTAMP)
-    // In a real app, strict sequential numbering is better.
     const number = `Q-${Date.now()}`;
 
     await prisma.quote.create({
         data: {
             number,
-            clientId: data.clientId,
-            date: data.date,
-            dueDate: data.dueDate,
-            notes: data.notes,
+            clientId,
+            date,
+            dueDate,
+            notes,
             total,
             items: {
-                create: data.items.map((item) => ({
+                create: items.map((item) => ({
+                    title: item.title,
                     description: item.description,
                     quantity: item.quantity,
                     price: item.price,
@@ -48,8 +86,15 @@ export async function createQuote(data: QuoteInput) {
     redirect("/quotes");
 }
 
-export async function updateQuote(id: string, data: QuoteInput) {
-    const total = data.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+export async function updateQuote(id: string, formData: FormData) {
+    const clientId = formData.get("clientId") as string;
+    const date = new Date(formData.get("date") as string);
+    const dueDateStr = formData.get("dueDate") as string;
+    const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
+    const notes = formData.get("notes") as string;
+
+    const items = parseItems(formData);
+    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
 
     // Transaction to update quote and replace items
     await prisma.$transaction(async (tx) => {
@@ -62,13 +107,14 @@ export async function updateQuote(id: string, data: QuoteInput) {
         await tx.quote.update({
             where: { id },
             data: {
-                clientId: data.clientId,
-                date: data.date,
-                dueDate: data.dueDate,
-                notes: data.notes,
+                clientId,
+                date,
+                dueDate,
+                notes,
                 total,
                 items: {
-                    create: data.items.map((item) => ({
+                    create: items.map((item) => ({
+                        title: item.title,
                         description: item.description,
                         quantity: item.quantity,
                         price: item.price,
@@ -86,4 +132,19 @@ export async function updateQuote(id: string, data: QuoteInput) {
 export async function deleteQuote(id: string) {
     await prisma.quote.delete({ where: { id } });
     revalidatePath("/quotes");
+}
+
+export async function updateQuoteStatus(id: string, status: string) {
+    const validStatuses = ["DRAFT", "SENT", "ACCEPTED", "REJECTED"];
+    if (!validStatuses.includes(status)) {
+        throw new Error("Invalid status");
+    }
+
+    await prisma.quote.update({
+        where: { id },
+        data: { status }
+    });
+
+    revalidatePath("/quotes");
+    revalidatePath(`/quotes/${id}`);
 }

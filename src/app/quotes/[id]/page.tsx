@@ -3,9 +3,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import QuoteForm from "@/components/QuoteForm";
 import styles from "../page.module.css";
+import SplitButton from "@/components/SplitButton";
 import { createBillFromQuote } from "@/actions/bills";
 import { sendQuote } from "@/actions/send";
 import { sendForSigning } from "@/actions/signing";
+import { updateQuoteStatus as updateStatus } from "@/actions/quotes";
+import { getDictionary } from "@/lib/i18n";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -13,14 +16,18 @@ interface PageProps {
 
 export default async function EditQuotePage({ params }: PageProps) {
     const { id } = await params;
+    const { dict } = await getDictionary();
 
-    const [quote, clients] = await Promise.all([
-        prisma.quote.findUnique({
-            where: { id },
-            include: { items: true },
-        }),
-        prisma.client.findMany({ orderBy: { name: "asc" } }),
-    ]);
+    const quote = await prisma.quote.findUnique({
+        where: { id },
+        include: { items: true },
+    });
+
+    const clients = await prisma.client.findMany({
+        orderBy: { name: "asc" },
+        select: { id: true, name: true }
+    });
+
 
     if (!quote) {
         notFound();
@@ -30,8 +37,10 @@ export default async function EditQuotePage({ params }: PageProps) {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className={styles.title}>Edit Quote</h1>
-                    <span className={`${styles.status} ${styles['status_' + quote.status]}`}>{quote.status}</span>
+                    <h1 className={styles.title}>{dict.quotes.edit_quote}</h1>
+                    <span className={`${styles.status} ${styles['status_' + quote.status]}`}>
+                        {(dict.quotes.status as any)[quote.status] || quote.status}
+                    </span>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <a
@@ -40,23 +49,39 @@ export default async function EditQuotePage({ params }: PageProps) {
                         className={styles.secondaryButton}
                         style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                     >
-                        Download PDF
+                        {dict.quotes.download_pdf}
                     </a>
-                    <form action={sendQuote.bind(null, quote.id)}>
-                        <button type="submit" className={styles.secondaryButton} style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbb' }}>Send Email</button>
-                    </form>
-                    <form action={sendForSigning.bind(null, quote.id)}>
-                        <button type="submit" className={styles.secondaryButton} style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bbb' }}>Sign via DocuSeal</button>
-                    </form>
-                    <form action={createBillFromQuote.bind(null, quote.id)}>
-                        <button type="submit" className={styles.button}>Convert to Bill</button>
-                    </form>
-                    <Link href="/quotes" className={styles.secondaryButton} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                        Back
-                    </Link>
+                    <SplitButton
+                        mainAction={sendQuote.bind(null, quote.id)}
+                        mainLabel={dict.quotes.send_email}
+                        dropdownItems={[
+                            { action: updateStatus.bind(null, quote.id, "SENT"), label: dict.quotes.mark_as_sent }
+                        ]}
+                        color="blue"
+                    />
+
+                    <SplitButton
+                        mainAction={sendForSigning.bind(null, quote.id)}
+                        mainLabel={dict.quotes.sign_docuseal}
+                        dropdownItems={[
+                            { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted }
+                        ]}
+                        color="green"
+                    />
                 </div>
             </div>
-            <QuoteForm clients={clients} quote={quote} />
+            <QuoteForm
+                clients={clients}
+                quote={{
+                    ...quote,
+                    items: quote.items.map(item => ({
+                        ...item,
+                        title: item.title ?? undefined
+                    }))
+                }}
+                dict={dict}
+                convertAction={createBillFromQuote.bind(null, quote.id)}
+            />
         </div>
     );
 }

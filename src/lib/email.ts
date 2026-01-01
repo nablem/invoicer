@@ -21,7 +21,10 @@ export async function sendEmail(
             "accept": "application/json",
         },
         body: JSON.stringify({
-            sender: { name: "Freelance Hub", email: "billing@freelancehub.local" }, // Change this to verified sender
+            sender: {
+                name: process.env.SMTP_FROM_NAME || "Freelance Hub",
+                email: process.env.SMTP_FROM_EMAIL || "billing@freelancehub.local"
+            },
             to: [{ email: to.email, name: to.name }],
             subject,
             htmlContent: content,

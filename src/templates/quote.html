@@ -42,6 +42,17 @@
             font-weight: bold;
         }
 
+        .item-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .item-description {
+            white-space: pre-wrap;
+            color: #555;
+            font-size: 0.9em;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -86,7 +97,7 @@
         <div class="meta">
             <div>Quote #: <strong>{{number}}</strong></div>
             <div>Date: {{date}}</div>
-            {{#if dueDate}}<div>Due Date: {{dueDate}}</div>{{/if}}
+            {{#if dueDate}}<div>Expiration Date: {{dueDate}}</div>{{/if}}
         </div>
     </div>
 
@@ -94,7 +105,9 @@
         <div class="bold">To:</div>
         <div>{{client.name}}</div>
         <div>{{client.email}}</div>
-        <div>{{client.billingAddress}}</div>
+        <div>{{client.address}}</div>
+        <div>{{client.city}}{{#if client.zipCode}}, {{client.zipCode}}{{/if}}</div>
+        {{#if client.country}}<div>{{client.country}}</div>{{/if}}
         {{#if client.vatNumber}}<div>VAT: {{client.vatNumber}}</div>{{/if}}
         {{#if client.companyId}}<div>Company ID: {{client.companyId}}</div>{{/if}}
     </div>
@@ -113,7 +126,12 @@
         <tbody>
             {{#each items}}
             <tr>
-                <td>{{description}}</td>
+                <td>
+                    {{#if this.title}}
+                    <div class="item-title">{{this.title}}</div>
+                    {{/if}}
+                    <div class="item-description">{{this.description}}</div>
+                </td>
                 <td style="text-align: right;">{{quantity}}</td>
                 <td style="text-align: right;">{{price}}</td>
                 <td style="text-align: right;">{{total}}</td>

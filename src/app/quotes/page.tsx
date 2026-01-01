@@ -2,10 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import styles from "./page.module.css";
 import { deleteQuote } from "@/actions/quotes";
+import { getDictionary } from "@/lib/i18n";
+import QuoteActions from "@/components/QuoteActions";
 
 export const dynamic = "force-dynamic";
 
 export default async function QuotesPage() {
+    const { dict } = await getDictionary();
     const quotes = await prisma.quote.findMany({
         include: { client: true },
         orderBy: { createdAt: "desc" },
@@ -14,49 +17,44 @@ export default async function QuotesPage() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Quotes</h1>
+                <h1 className={styles.title}>{dict.quotes.title}</h1>
                 <Link href="/quotes/new" className={styles.addButton}>
-                    New Quote
+                    {dict.quotes.new_quote}
                 </Link>
             </div>
 
             <table className={styles.table}>
                 <thead>
                     <tr>
-                        <th>Number</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>{dict.quotes.number}</th>
+                        <th>{dict.quotes.client}</th>
+                        <th style={{ textAlign: "right" }}>{dict.common.total}</th>
+                        <th>{dict.common.status}</th>
+                        <th>{dict.common.actions}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {quotes.map((quote) => (
                         <tr key={quote.id}>
-                            <td>{quote.number}</td>
-                            <td>{quote.client.name}</td>
-                            <td>{new Date(quote.date).toLocaleDateString()}</td>
-                            <td>{quote.total.toFixed(2)} {quote.currency}</td>
                             <td>
-                                <span className={`${styles.status} ${styles['status_' + quote.status]}`}>
-                                    {quote.status}
-                                </span>
-                            </td>
-                            <td>
-                                <Link href={`/quotes/${quote.id}`} style={{ marginRight: "1rem", color: "var(--primary)" }}>
-                                    Edit
+                                <Link href={`/quotes/${quote.id}`} style={{ fontWeight: 500, color: 'inherit', textDecoration: 'none' }}>
+                                    {quote.number}
                                 </Link>
-                                <form action={deleteQuote.bind(null, quote.id)} style={{ display: "inline" }}>
-                                    <button type="submit" style={{ color: "red" }}>Delete</button>
-                                </form>
+                            </td>
+                            <td>{quote.client.name}</td>
+                            <td style={{ textAlign: "right" }}>{quote.total.toFixed(2)} {quote.currency}</td>
+                            <td><span className={`${styles.status} ${styles['status_' + quote.status]}`}>
+                                {(dict.quotes.status as any)[quote.status] || quote.status}
+                            </span></td>
+                            <td>
+                                <QuoteActions id={quote.id} dict={dict} />
                             </td>
                         </tr>
                     ))}
                     {quotes.length === 0 && (
                         <tr>
-                            <td colSpan={6} style={{ textAlign: "center", color: "var(--muted-foreground)" }}>
-                                No quotes found.
+                            <td colSpan={5} style={{ textAlign: "center", color: "var(--muted-foreground)" }}>
+                                {dict.quotes.no_quotes}
                             </td>
                         </tr>
                     )}
