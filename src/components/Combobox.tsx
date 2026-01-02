@@ -31,8 +31,9 @@ export default function Combobox({
     placeholder,
     minSearchLength = 2,
     valueKey = "name",
-    allowClear = false
-}: ComboboxProps) {
+    allowClear = false,
+    disabled = false
+}: ComboboxProps & { disabled?: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [items, setItems] = useState<Item[]>(initialItems);
@@ -78,7 +79,7 @@ export default function Combobox({
     };
 
     return (
-        <div className={styles.wrapper} ref={wrapperRef}>
+        <div className={styles.wrapper} ref={wrapperRef} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : {}}>
             <label className={styles.label}>{label}</label>
             <input type="hidden" name={name} value={selectedItem?.id || ""} />
 
@@ -96,8 +97,9 @@ export default function Combobox({
                         setIsOpen(true);
                         setItems(initialItems);
                     }}
+                    disabled={disabled}
                 />
-                {allowClear && selectedItem && (
+                {allowClear && selectedItem && !disabled && (
                     <button
                         type="button"
                         onClick={(e) => {
@@ -122,7 +124,7 @@ export default function Combobox({
                         ×
                     </button>
                 )}
-                <div className={styles.arrow} onClick={() => setIsOpen(!isOpen)}>▼</div>
+                <div className={styles.arrow} onClick={() => !disabled && setIsOpen(!isOpen)}>▼</div>
             </div>
 
             {isOpen && (

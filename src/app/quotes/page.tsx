@@ -4,6 +4,8 @@ import styles from "./page.module.css";
 import { deleteQuote } from "@/actions/quotes";
 import { getDictionary } from "@/lib/i18n";
 import QuoteActions from "@/components/QuoteActions";
+import SearchInput from "@/components/SearchInput";
+import StatusFilter from "@/components/StatusFilter";
 
 // @ts-ignore
 import Pagination from "@/components/Pagination";
@@ -11,34 +13,51 @@ import Pagination from "@/components/Pagination";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-    searchParams: Promise<{ page?: string }>;
+    searchParams: Promise<{ page?: string; search?: string; status?: string }>;
 }
 
 export default async function QuotesPage({ searchParams }: PageProps) {
-    const { page } = await searchParams;
+    const { page, search, status } = await searchParams;
     const currentPage = parseInt(page || "1", 10);
     const pageSize = 20;
     const skip = (currentPage - 1) * pageSize;
 
     const { dict } = await getDictionary();
 
+    const where: any = {};
+    if (search) {
+        where.number = { contains: search };
+    }
+    if (status) {
+        where.status = { in: status.split(",") };
+    }
+
     // Parallel fetch for data and count
     const [quotes, totalCount] = await Promise.all([
         prisma.quote.findMany({
+            where,
             include: { client: true },
             orderBy: { createdAt: "desc" },
             take: pageSize,
             skip: skip,
         }),
-        prisma.quote.count()
+        prisma.quote.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
+    const statusOptions = Object.entries(dict.quotes.status).map(([value, label]) => ({
+        value,
+        label: label as string
+    }));
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>{dict.quotes.title}</h1>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <h1 className={styles.title}>{dict.quotes.title}</h1>
+                    <SearchInput placeholder={dict.quotes.number + "..."} />
+                </div>
                 <Link href="/quotes/new" className={styles.addButton}>
                     {dict.quotes.new_quote}
                 </Link>
@@ -50,7 +69,10 @@ export default async function QuotesPage({ searchParams }: PageProps) {
                         <th>{dict.quotes.number}</th>
                         <th>{dict.quotes.client}</th>
                         <th style={{ textAlign: "right" }}>{dict.common.total}</th>
-                        <th>{dict.common.status}</th>
+                        <th style={{ display: "flex", alignItems: "center" }}>
+                            {dict.common.status}
+                            <StatusFilter options={statusOptions} />
+                        </th>
                         <th>{dict.common.actions}</th>
                     </tr>
                 </thead>

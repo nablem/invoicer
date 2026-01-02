@@ -73,6 +73,11 @@
     color: #dc2626;
 }
 
+.status_SENT_FOR_SIGNATURE {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
 .button {
     display: inline-flex;
     align-items: center;

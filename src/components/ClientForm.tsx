@@ -148,8 +148,8 @@ export default function ClientForm({ client, dict }: ClientFormProps) {
                 />
             </div>
 
-            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', alignItems: 'center' }}>
-                <Link href="/clients" style={{ textDecoration: 'none', color: '#666' }}>
+            <div className={styles.actions} style={{ display: 'flex', gap: '1rem', marginTop: "2rem" }}>
+                <Link href="/clients" className={styles.secondaryButton}>
                     {dict.common.back}
                 </Link>
                 <button type="submit" className={styles.button}>

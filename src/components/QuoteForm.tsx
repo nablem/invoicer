@@ -31,9 +31,10 @@ interface QuoteFormProps {
     };
     dict: Dictionary;
     convertAction?: any;
+    readOnly?: boolean;
 }
 
-export default function QuoteForm({ clients, quote, dict, convertAction }: QuoteFormProps) {
+export default function QuoteForm({ clients, quote, dict, convertAction, readOnly }: QuoteFormProps) {
     const isEditing = !!quote;
     const action = isEditing ? updateQuote.bind(null, quote.id) : createQuote;
 
@@ -85,7 +86,9 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                         placeholder={dict.quotes.form.select_client}
                         minSearchLength={2}
                         valueKey="name"
+                        disabled={readOnly}
                     />
+
                 </div>
             </div>
 
@@ -101,6 +104,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                         required
                         defaultValue={quote ? new Date(quote.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                         className={styles.input}
+                        disabled={readOnly}
                     />
                 </div>
                 <div className={styles.group}>
@@ -113,6 +117,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                         name="dueDate"
                         defaultValue={quote?.dueDate ? new Date(quote.dueDate).toISOString().split('T')[0] : defaultExpiryStr}
                         className={styles.input}
+                        disabled={readOnly}
                     />
                 </div>
             </div>
@@ -141,7 +146,9 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                                 value={item.title || ""}
                                 onChange={(e) => updateItem(index, "title", e.target.value)}
                                 className={styles.input}
+
                                 required
+                                disabled={readOnly}
                             />
                             <SmartTextarea
                                 placeholder={dict.quotes.form.description_placeholder}
@@ -149,6 +156,8 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                                 onValueChange={(val) => updateItem(index, "description", val)}
                                 className={styles.textarea}
                                 style={{ minHeight: '80px', resize: 'vertical' }}
+
+                                disabled={readOnly}
                             />
                         </div>
                         <input
@@ -159,6 +168,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                             onChange={(e) => updateItem(index, "quantity", e.target.value)}
                             className={styles.input}
                             style={{ flex: 1 }}
+                            disabled={readOnly}
                         />
                         <input
                             type="number"
@@ -169,19 +179,24 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                             onChange={(e) => updateItem(index, "price", e.target.value)}
                             className={styles.input}
                             style={{ flex: 1 }}
+                            disabled={readOnly}
                         />
                         <div style={{ flex: 1, fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
                             {item.total.toFixed(2)}
                         </div>
-                        <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
-                            ×
-                        </button>
+                        {!readOnly && (
+                            <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
+                                ×
+                            </button>
+                        )}
                     </div>
                 ))}
 
-                <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
-                    {dict.quotes.form.add_item}
-                </button>
+                {!readOnly && (
+                    <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
+                        {dict.quotes.form.add_item}
+                    </button>
+                )}
 
                 <div className={styles.totalRow}>
                     <span>{dict.common.total}:</span>
@@ -198,7 +213,10 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                     name="notes"
                     defaultValue={quote?.notes || ""}
                     className={styles.textarea}
+
+
                     rows={4}
+                    disabled={readOnly}
                 />
             </div>
 
@@ -207,9 +225,11 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                     <Link href="/quotes" className={styles.secondaryButton}>
                         {dict.common.back}
                     </Link>
-                    <button type="submit" className={styles.button}>
-                        {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
-                    </button>
+                    {!readOnly && (
+                        <button type="submit" className={styles.button}>
+                            {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
+                        </button>
+                    )}
                 </div>
 
                 {/* Convert Button */}

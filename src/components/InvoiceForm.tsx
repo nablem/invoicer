@@ -34,9 +34,10 @@ interface InvoiceFormProps {
         recurringInterval: string | null;
     };
     dict: Dictionary;
+    readOnly?: boolean;
 }
 
-export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceFormProps) {
+export default function InvoiceForm({ clients, quotes, invoice, dict, readOnly }: InvoiceFormProps) {
     const isEditing = !!invoice;
     const action = isEditing ? updateInvoice.bind(null, invoice.id) : createInvoice;
 
@@ -80,6 +81,7 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
         <form action={action} className={styles.form}>
             <div className={styles.row}>
                 <div className={styles.group}>
+
                     <Combobox
                         name="clientId"
                         label={dict.invoices.client}
@@ -89,9 +91,11 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                         placeholder={dict.invoices.select_client}
                         minSearchLength={2}
                         valueKey="name"
+                        disabled={readOnly}
                     />
                 </div>
                 <div className={styles.group}>
+
                     <Combobox
                         name="quoteId"
                         label={dict.common.quotes}
@@ -102,6 +106,7 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                         minSearchLength={4}
                         valueKey="number"
                         allowClear={true}
+                        disabled={readOnly}
                     />
                 </div>
             </div>
@@ -118,6 +123,7 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                         required
                         defaultValue={invoice ? new Date(invoice.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                         className={styles.input}
+                        disabled={readOnly}
                     />
                 </div>
                 <div className={styles.group}>
@@ -129,7 +135,9 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                         id="dueDate"
                         name="dueDate"
                         defaultValue={invoice?.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : defaultDueDateStr}
+
                         className={styles.input}
+                        disabled={readOnly}
                     />
                 </div>
             </div>
@@ -140,7 +148,9 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                     name="isRecurring"
                     checked={isRecurring}
                     onChange={(e) => setIsRecurring(e.target.checked)}
+
                     style={{ width: 'auto' }}
+                    disabled={readOnly}
                 />
                 <label htmlFor="isRecurring" className={styles.label} style={{ marginBottom: 0 }}>
                     {dict.invoices.recurring_invoice}
@@ -156,7 +166,9 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                         id="recurringInterval"
                         name="recurringInterval"
                         defaultValue={invoice?.recurringInterval || "MONTHLY"}
+
                         className={styles.select}
+                        disabled={readOnly}
                     >
                         <option value="WEEKLY">{dict.invoices.intervals.weekly}</option>
                         <option value="MONTHLY">{dict.invoices.intervals.monthly}</option>
@@ -190,14 +202,19 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                                 value={item.title || ""}
                                 onChange={(e) => updateItem(index, "title", e.target.value)}
                                 className={styles.input}
+
                                 required
+                                disabled={readOnly}
                             />
                             <SmartTextarea
                                 placeholder={dict.quotes.form.description_placeholder}
                                 value={item.description}
                                 onValueChange={(val) => updateItem(index, "description", val)}
                                 className={styles.textarea}
+
                                 style={{ minHeight: '80px', resize: 'vertical' }}
+
+                                disabled={readOnly}
                             />
                         </div>
                         <input
@@ -208,6 +225,7 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                             onChange={(e) => updateItem(index, "quantity", e.target.value)}
                             className={styles.input}
                             style={{ flex: 1 }}
+                            disabled={readOnly}
                         />
                         <input
                             type="number"
@@ -218,19 +236,24 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                             onChange={(e) => updateItem(index, "price", e.target.value)}
                             className={styles.input}
                             style={{ flex: 1 }}
+                            disabled={readOnly}
                         />
                         <div style={{ flex: 1, fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
                             {item.total.toFixed(2)}
                         </div>
-                        <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
-                            ×
-                        </button>
+                        {!readOnly && (
+                            <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
+                                ×
+                            </button>
+                        )}
                     </div>
                 ))}
 
-                <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
-                    {dict.quotes.form.add_item}
-                </button>
+                {!readOnly && (
+                    <button type="button" onClick={addItem} className={styles.secondaryButton} style={{ marginTop: '1rem' }}>
+                        {dict.quotes.form.add_item}
+                    </button>
+                )}
 
                 <div className={styles.totalRow}>
                     <span>{dict.common.total}:</span>
@@ -247,7 +270,10 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                     name="notes"
                     defaultValue={invoice?.notes || ""}
                     className={styles.textarea}
+
                     rows={4}
+
+                    disabled={readOnly}
                 />
             </div>
 
@@ -255,9 +281,11 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
                 <Link href="/invoices" className={styles.secondaryButton}>
                     {dict.common.back}
                 </Link>
-                <button type="submit" className={styles.button}>
-                    {isEditing ? dict.invoices.form.submit_update : dict.invoices.form.submit_create}
-                </button>
+                {(!readOnly) && (
+                    <button type="submit" className={styles.button}>
+                        {isEditing ? dict.invoices.form.submit_update : dict.invoices.form.submit_create}
+                    </button>
+                )}
             </div>
         </form>
     );

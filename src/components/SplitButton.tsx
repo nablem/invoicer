@@ -8,13 +8,14 @@ interface SplitButtonProps {
     mainHref?: string;
     mainLabel: string;
     dropdownItems: {
-        action: (formData: FormData) => void | Promise<void>;
+        action?: (formData: FormData) => void | Promise<void>;
+        href?: string; // Add support for href
         label: string;
     }[];
-    color: "blue" | "green" | "default";
+    color: "blue" | "green" | "yellow" | "default";
 }
 
-export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownItems, color }: SplitButtonProps) {
+export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownItems, color, mainActionDisabled }: SplitButtonProps & { mainActionDisabled?: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +32,12 @@ export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownI
             text: "#16a34a",
             border: "#bbb",
             hover: "#bbf7d0"
+        },
+        yellow: {
+            bg: "#fef9c3",
+            text: "#854d0e",
+            border: "#bbb",
+            hover: "#fef08a"
         },
         default: {
             bg: "var(--background)",
@@ -50,11 +57,13 @@ export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownI
         background: theme.bg,
         color: theme.text,
         fontWeight: 500,
-        cursor: "pointer",
+        cursor: mainActionDisabled ? "not-allowed" : "pointer",
         fontSize: "0.875rem",
         display: "flex",
         alignItems: "center",
-        textDecoration: "none"
+        textDecoration: "none",
+        opacity: mainActionDisabled ? 0.5 : 1,
+        pointerEvents: mainActionDisabled ? "none" : "auto",
     };
 
     useEffect(() => {
@@ -72,12 +81,16 @@ export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownI
     return (
         <div style={{ display: "inline-flex", position: "relative", verticalAlign: "middle" }} ref={dropdownRef}>
             {mainHref ? (
-                <Link href={mainHref} style={buttonStyle}>
-                    {mainLabel}
-                </Link>
+                mainActionDisabled ? (
+                    <span style={buttonStyle as any}>{mainLabel}</span>
+                ) : (
+                    <Link href={mainHref} style={buttonStyle as any}>
+                        {mainLabel}
+                    </Link>
+                )
             ) : (
                 <form action={mainAction} style={{ display: "flex" }}>
-                    <button type="submit" style={buttonStyle}>
+                    <button type="submit" style={buttonStyle as any} disabled={Boolean(mainActionDisabled)}>
                         {mainLabel}
                     </button>
                 </form>
@@ -121,26 +134,50 @@ export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownI
                     marginTop: "4px"
                 }}>
                     {dropdownItems.map((item, index) => (
-                        <form key={index} action={item.action}>
-                            <button
-                                type="submit"
-                                style={{
-                                    display: "block",
-                                    width: "100%",
-                                    padding: "0.5rem 1rem",
-                                    textAlign: "left",
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    fontSize: "0.875rem",
-                                    color: "var(--foreground)"
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.background = "var(--muted)"}
-                                onMouseOut={(e) => e.currentTarget.style.background = "none"}
-                            >
-                                {item.label}
-                            </button>
-                        </form>
+                        <div key={index}>
+                            {item.href ? (
+                                <Link
+                                    href={item.href}
+                                    style={{
+                                        display: "block",
+                                        width: "100%",
+                                        padding: "0.5rem 1rem",
+                                        textAlign: "left",
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        fontSize: "0.875rem",
+                                        color: "var(--foreground)",
+                                        textDecoration: "none"
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.background = "var(--muted)"}
+                                    onMouseOut={(e) => e.currentTarget.style.background = "none"}
+                                >
+                                    {item.label}
+                                </Link>
+                            ) : (
+                                <form action={item.action}>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            display: "block",
+                                            width: "100%",
+                                            padding: "0.5rem 1rem",
+                                            textAlign: "left",
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            fontSize: "0.875rem",
+                                            color: "var(--foreground)"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.background = "var(--muted)"}
+                                        onMouseOut={(e) => e.currentTarget.style.background = "none"}
+                                    >
+                                        {item.label}
+                                    </button>
+                                </form>
+                            )}
+                        </div>
                     ))}
                 </div>
             )}

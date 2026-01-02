@@ -26,6 +26,14 @@ export const fr = {
         financials: "Données Financières",
         revenue: "Chiffre d'Affaires (Payé)",
         pending: "En Attente (Envoyé)",
+        filter: {
+            all_years: "Toutes les années",
+            all_months: "Tous les mois",
+            months: [
+                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+            ]
+        }
     },
     clients: {
         title: "Clients",
@@ -102,6 +110,8 @@ export const fr = {
         },
         mark_as_sent: "Marquer comme Envoyée",
         mark_as_paid: "Marquer comme Payée",
+        mark_as_overdue: "Marquer comme En Retard",
+        mark_as_cancelled: "Marquer comme Annulée",
         status: {
             DRAFT: "Brouillon",
             SENT: "Envoyée",
@@ -167,6 +177,14 @@ export const en: Dictionary = {
         financials: "Financial Insights",
         revenue: "Revenue (Paid)",
         pending: "Pending (Sent)",
+        filter: {
+            all_years: "All Years",
+            all_months: "All Months",
+            months: [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ]
+        }
     },
     clients: {
         title: "Clients",
@@ -237,6 +255,8 @@ export const en: Dictionary = {
         recurring_invoice: "Recurring Invoice",
         mark_as_sent: "Mark as Sent",
         mark_as_paid: "Mark as Paid",
+        mark_as_overdue: "Mark as Overdue",
+        mark_as_cancelled: "Mark as Cancelled",
         intervals: {
             weekly: "Weekly",
             monthly: "Monthly",

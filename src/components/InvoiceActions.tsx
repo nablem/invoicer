@@ -17,6 +17,8 @@ export default function InvoiceActions({ id, dict }: InvoiceActionsProps) {
             dropdownItems={[
                 { action: updateInvoiceStatus.bind(null, id, "SENT"), label: dict.invoices.mark_as_sent },
                 { action: updateInvoiceStatus.bind(null, id, "PAID"), label: dict.invoices.mark_as_paid },
+                { action: updateInvoiceStatus.bind(null, id, "OVERDUE"), label: dict.invoices.mark_as_overdue },
+                { action: updateInvoiceStatus.bind(null, id, "CANCELLED"), label: dict.invoices.mark_as_cancelled },
                 { action: deleteInvoice.bind(null, id), label: dict.common.delete }
             ]}
             color="default"

@@ -2,17 +2,19 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Dictionary } from "@/lib/dictionaries";
 
-export default function DashboardFilter() {
+interface Props {
+    dict: Dictionary;
+}
+
+export default function DashboardFilter({ dict }: Props) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
+    const months = dict.dashboard.filter.months;
 
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || "");
     const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || "");
@@ -44,7 +46,7 @@ export default function DashboardFilter() {
                 }}
                 style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
             >
-                <option value="">All Years</option>
+                <option value="">{dict.dashboard.filter.all_years}</option>
                 {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
 
@@ -54,7 +56,7 @@ export default function DashboardFilter() {
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
                 >
-                    <option value="">All Months</option>
+                    <option value="">{dict.dashboard.filter.all_months}</option>
                     {months.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                 </select>
             )}

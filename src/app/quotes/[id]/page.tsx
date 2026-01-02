@@ -20,7 +20,7 @@ export default async function EditQuotePage({ params }: PageProps) {
 
     const quote = await prisma.quote.findUnique({
         where: { id },
-        include: { items: true },
+        include: { items: true, client: true },
     });
 
     const clients = await prisma.client.findMany({
@@ -32,6 +32,9 @@ export default async function EditQuotePage({ params }: PageProps) {
     if (!quote) {
         notFound();
     }
+
+    const isLocked = ['SENT', 'ACCEPTED', 'REJECTED', 'SENT_FOR_SIGNATURE'].includes(quote.status);
+    const emailMissing = !quote.client.email;
 
     return (
         <div className={styles.container}>
@@ -58,6 +61,7 @@ export default async function EditQuotePage({ params }: PageProps) {
                             { action: updateStatus.bind(null, quote.id, "SENT"), label: dict.quotes.mark_as_sent }
                         ]}
                         color="blue"
+                        mainActionDisabled={emailMissing}
                     />
 
                     <SplitButton
@@ -66,7 +70,8 @@ export default async function EditQuotePage({ params }: PageProps) {
                         dropdownItems={[
                             { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted }
                         ]}
-                        color="green"
+                        color="yellow"
+                        mainActionDisabled={emailMissing}
                     />
                 </div>
             </div>
@@ -81,6 +86,7 @@ export default async function EditQuotePage({ params }: PageProps) {
                 }}
                 dict={dict}
                 convertAction={createInvoiceFromQuote.bind(null, quote.id)}
+                readOnly={isLocked}
             />
         </div>
     );

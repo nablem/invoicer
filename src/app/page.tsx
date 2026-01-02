@@ -72,7 +72,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <div style={{ marginTop: "3rem", marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "1rem" }}>{dict.dashboard.financials}</h2>
-        <DashboardFilter />
+        <DashboardFilter dict={dict} />
 
         <div className={styles.statsGrid}>
           <div className={styles.card} style={{ backgroundColor: "#ecfdf5", borderColor: "#10b981" }}>

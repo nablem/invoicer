@@ -18,7 +18,7 @@ export default async function EditInvoicePage({ params }: PageProps) {
 
     const invoice = await prisma.invoice.findUnique({
         where: { id },
-        include: { items: true },
+        include: { items: true, client: true },
     });
 
     const clients = await prisma.client.findMany({
@@ -35,6 +35,9 @@ export default async function EditInvoicePage({ params }: PageProps) {
     if (!invoice) {
         notFound();
     }
+
+    const isLocked = ['SENT', 'PAID', 'OVERDUE', 'CANCELLED'].includes(invoice.status);
+    const emailMissing = !invoice.client.email;
 
     return (
         <div className={styles.container}>
@@ -62,12 +65,15 @@ export default async function EditInvoicePage({ params }: PageProps) {
                             { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent }
                         ]}
                         color="blue"
+                        mainActionDisabled={emailMissing}
                     />
 
                     <SplitButton
                         mainAction={updateStatus.bind(null, invoice.id, "PAID")}
                         mainLabel={dict.invoices.mark_as_paid}
-                        dropdownItems={[]}
+                        dropdownItems={[
+                            { action: updateStatus.bind(null, invoice.id, "OVERDUE"), label: dict.invoices.mark_as_overdue }
+                        ]}
                         color="green"
                     />
 
@@ -85,6 +91,7 @@ export default async function EditInvoicePage({ params }: PageProps) {
                     }))
                 }}
                 dict={dict}
+                readOnly={isLocked}
             />
         </div>
     );
