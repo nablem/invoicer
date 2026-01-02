@@ -5,27 +5,34 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const count = parseInt(searchParams.get("count") || "10");
 
+    const getRandomDate = (start: Date, end: Date) => {
+        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    }
+
     try {
         const clients = [];
         for (let i = 0; i < count; i++) {
+            const creationDate = getRandomDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), new Date());
             const client = await prisma.client.create({
                 data: {
                     name: `Client ${Math.floor(Math.random() * 10000)}`,
                     email: `client${Math.floor(Math.random() * 10000)}@example.com`,
-                    createdAt: new Date(),
+                    createdAt: creationDate,
                 }
             });
             clients.push(client);
         }
 
         for (const client of clients) {
+            const creationDate = getRandomDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), new Date());
+
             // Create Quote
             await prisma.quote.create({
                 data: {
                     number: `Q-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     clientId: client.id,
-                    date: new Date(),
-                    dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+                    date: creationDate,
+                    dueDate: new Date(creationDate.getTime() + 90 * 24 * 60 * 60 * 1000),
                     status: "DRAFT",
                     total: 1000,
                     items: {
@@ -36,7 +43,8 @@ export async function GET(req: NextRequest) {
                             price: 1000,
                             total: 1000
                         }]
-                    }
+                    },
+                    createdAt: creationDate
                 }
             });
 
@@ -45,8 +53,8 @@ export async function GET(req: NextRequest) {
                 data: {
                     number: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     clientId: client.id,
-                    date: new Date(),
-                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                    date: creationDate,
+                    dueDate: new Date(creationDate.getTime() + 30 * 24 * 60 * 60 * 1000),
                     status: "DRAFT",
                     total: 1500,
                     items: {
@@ -57,7 +65,8 @@ export async function GET(req: NextRequest) {
                             price: 1500,
                             total: 1500
                         }]
-                    }
+                    },
+                    createdAt: creationDate
                 }
             });
         }

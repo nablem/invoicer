@@ -1,6 +1,8 @@
 "use client";
 
 import { createQuote, updateQuote } from "@/actions/quotes";
+import { searchClients } from "@/actions/search";
+import Combobox from "@/components/Combobox";
 import styles from "./QuoteForm.module.css";
 import { useState } from "react";
 import Link from "next/link";
@@ -74,23 +76,16 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
         <form action={action} className={styles.form}>
             <div className={styles.row}>
                 <div className={styles.group}>
-                    <label htmlFor="clientId" className={styles.label}>
-                        {dict.quotes.form.client}
-                    </label>
-                    <select
-                        id="clientId"
+                    <Combobox
                         name="clientId"
-                        required
-                        defaultValue={quote?.clientId || ""}
-                        className={styles.select}
-                    >
-                        <option value="">{dict.quotes.form.select_client}</option>
-                        {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                                {client.name}
-                            </option>
-                        ))}
-                    </select>
+                        label={dict.quotes.form.client}
+                        initialItems={clients.map(c => ({ id: c.id, label: c.name }))}
+                        searchAction={searchClients}
+                        defaultValue={quote?.clientId}
+                        placeholder={dict.quotes.form.select_client}
+                        minSearchLength={2}
+                        valueKey="name"
+                    />
                 </div>
             </div>
 

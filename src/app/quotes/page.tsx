@@ -5,14 +5,35 @@ import { deleteQuote } from "@/actions/quotes";
 import { getDictionary } from "@/lib/i18n";
 import QuoteActions from "@/components/QuoteActions";
 
+// @ts-ignore
+import Pagination from "@/components/Pagination";
+
 export const dynamic = "force-dynamic";
 
-export default async function QuotesPage() {
+interface PageProps {
+    searchParams: Promise<{ page?: string }>;
+}
+
+export default async function QuotesPage({ searchParams }: PageProps) {
+    const { page } = await searchParams;
+    const currentPage = parseInt(page || "1", 10);
+    const pageSize = 20;
+    const skip = (currentPage - 1) * pageSize;
+
     const { dict } = await getDictionary();
-    const quotes = await prisma.quote.findMany({
-        include: { client: true },
-        orderBy: { createdAt: "desc" },
-    });
+
+    // Parallel fetch for data and count
+    const [quotes, totalCount] = await Promise.all([
+        prisma.quote.findMany({
+            include: { client: true },
+            orderBy: { createdAt: "desc" },
+            take: pageSize,
+            skip: skip,
+        }),
+        prisma.quote.count()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     return (
         <div className={styles.container}>
@@ -60,6 +81,8 @@ export default async function QuotesPage() {
                     )}
                 </tbody>
             </table>
+
+            <Pagination currentPage={currentPage} totalPages={totalPages} />
         </div>
     );
 }

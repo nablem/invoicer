@@ -1,6 +1,8 @@
 "use client";
 
 import { createInvoice, updateInvoice } from "@/actions/invoices";
+import { searchClients, searchQuotes } from "@/actions/search";
+import Combobox from "@/components/Combobox";
 import styles from "./InvoiceForm.module.css";
 import { useState } from "react";
 import Link from "next/link";
@@ -78,41 +80,29 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
         <form action={action} className={styles.form}>
             <div className={styles.row}>
                 <div className={styles.group}>
-                    <label htmlFor="clientId" className={styles.label}>
-                        {dict.quotes.form.client}
-                    </label>
-                    <select
-                        id="clientId"
+                    <Combobox
                         name="clientId"
-                        required
-                        defaultValue={invoice?.clientId || ""}
-                        className={styles.select}
-                    >
-                        <option value="">{dict.quotes.form.select_client}</option>
-                        {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                                {client.name}
-                            </option>
-                        ))}
-                    </select>
+                        label={dict.invoices.client}
+                        initialItems={clients.map(c => ({ id: c.id, label: c.name }))}
+                        searchAction={searchClients}
+                        defaultValue={invoice?.clientId}
+                        placeholder={dict.invoices.select_client}
+                        minSearchLength={2}
+                        valueKey="name"
+                    />
                 </div>
                 <div className={styles.group}>
-                    <label htmlFor="quoteId" className={styles.label}>
-                        {dict.common.quotes}
-                    </label>
-                    <select
-                        id="quoteId"
+                    <Combobox
                         name="quoteId"
-                        defaultValue={invoice?.quoteId || ""}
-                        className={styles.select}
-                    >
-                        <option value="">-</option>
-                        {quotes.map((quote) => (
-                            <option key={quote.id} value={quote.id}>
-                                {quote.number}
-                            </option>
-                        ))}
-                    </select>
+                        label={dict.common.quotes}
+                        initialItems={quotes.map(q => ({ id: q.id, label: q.number }))}
+                        searchAction={searchQuotes}
+                        defaultValue={invoice?.quoteId || undefined}
+                        placeholder="-"
+                        minSearchLength={4}
+                        valueKey="number"
+                        allowClear={true}
+                    />
                 </div>
             </div>
 
@@ -160,7 +150,7 @@ export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceF
             {isRecurring && (
                 <div className={styles.group}>
                     <label htmlFor="recurringInterval" className={styles.label}>
-                        {dict.invoices.recurring} Interval
+                        {dict.invoices.frequency}
                     </label>
                     <select
                         id="recurringInterval"

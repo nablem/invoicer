@@ -148,7 +148,10 @@ export default function ClientForm({ client, dict }: ClientFormProps) {
                 />
             </div>
 
-            <div style={{ marginTop: '1rem' }}> {/* Wrapped buttons to manage layout */}
+            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', alignItems: 'center' }}>
+                <Link href="/clients" style={{ textDecoration: 'none', color: '#666' }}>
+                    {dict.common.back}
+                </Link>
                 <button type="submit" className={styles.button}>
                     {isEditing ? dict.clients.form.submit_update : dict.clients.form.submit_create}
                 </button>

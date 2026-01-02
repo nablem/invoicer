@@ -23,6 +23,9 @@ export const fr = {
         view_invoices: "Voir Factures →",
         no_recent_quotes: "Aucun devis récent",
         no_recent_invoices: "Aucune facture récente",
+        financials: "Données Financières",
+        revenue: "Chiffre d'Affaires (Payé)",
+        pending: "En Attente (Envoyé)",
     },
     clients: {
         title: "Clients",
@@ -86,7 +89,10 @@ export const fr = {
         new_invoice: "Nouvelle Facture",
         edit_invoice: "Modifier Facture",
         no_invoices: "Aucune facture trouvée.",
+        client: "Client",
+        select_client: "Sélectionner Client",
         recurring: "Récurrence",
+        frequency: "Fréquence",
         recurring_invoice: "Facture Récurrente",
         intervals: {
             weekly: "Hebdomadaire",
@@ -112,6 +118,11 @@ export const fr = {
     settings: {
         title: "Paramètres",
         organization: "Détails de l'organisation",
+        test_data: {
+            title: "Données de Test",
+            create: "Créer Documents de Test",
+            remove: "Supprimer Documents de Test",
+        },
         form: {
             name: "Nom / Dénomination",
             company_id: "SIRET / SIREN",
@@ -153,6 +164,9 @@ export const en: Dictionary = {
         view_invoices: "View Invoices →",
         no_recent_quotes: "No recent quotes",
         no_recent_invoices: "No recent invoices",
+        financials: "Financial Insights",
+        revenue: "Revenue (Paid)",
+        pending: "Pending (Sent)",
     },
     clients: {
         title: "Clients",
@@ -216,7 +230,10 @@ export const en: Dictionary = {
         new_invoice: "New Invoice",
         edit_invoice: "Edit Invoice",
         no_invoices: "No invoices found.",
+        client: "Client",
+        select_client: "Select Client",
         recurring: "Recurring",
+        frequency: "Frequency",
         recurring_invoice: "Recurring Invoice",
         mark_as_sent: "Mark as Sent",
         mark_as_paid: "Mark as Paid",
@@ -242,6 +259,12 @@ export const en: Dictionary = {
     settings: {
         title: "Settings",
         organization: "Organization Details",
+        test_data: {
+            title: "Test Data",
+            create: "Create Test Documents",
+            remove: "Remove Test Documents",
+        },
+
         form: {
             name: "Organization Name",
             company_id: "Company ID",

@@ -81,3 +81,55 @@ export async function updateOrganization(formData: FormData) {
     revalidatePath("/");
     return { success: true };
 }
+
+export async function deleteTestData() {
+    try {
+        // Find seeded clients (pattern: client___@example.com)
+        // We use a safer check: email starts with 'client' and ends with '@example.com' 
+        // to avoid deleting real clients named "client" if possible, but for dev tool it's acceptable.
+        const clients = await prisma.client.findMany({
+            where: {
+                email: {
+                    startsWith: "client",
+                    endsWith: "@example.com"
+                }
+            },
+            select: { id: true }
+        });
+
+        const clientIds = clients.map(c => c.id);
+
+        if (clientIds.length > 0) {
+            // Delete related invoices
+            await prisma.invoiceItem.deleteMany({
+                where: { invoice: { clientId: { in: clientIds } } }
+            });
+            await prisma.invoice.deleteMany({
+                where: { clientId: { in: clientIds } }
+            });
+
+            // Delete related quotes
+            await prisma.invoiceItem.deleteMany({
+                where: { invoice: { quoteId: { not: null } } } // Cleaning up invoice items linked to quotes? No.
+            });
+            // Quote items
+            await prisma.quoteItem.deleteMany({
+                where: { quote: { clientId: { in: clientIds } } }
+            });
+            await prisma.quote.deleteMany({
+                where: { clientId: { in: clientIds } }
+            });
+
+            // Delete clients
+            await prisma.client.deleteMany({
+                where: { id: { in: clientIds } }
+            });
+        }
+
+        revalidatePath("/");
+        return { success: true, count: clientIds.length };
+    } catch (error) {
+        console.error("Error deleting test data:", error);
+        return { success: false, error: String(error) };
+    }
+}

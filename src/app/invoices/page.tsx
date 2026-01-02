@@ -5,14 +5,34 @@ import { deleteInvoice } from "@/actions/invoices";
 import InvoiceActions from "@/components/InvoiceActions";
 import { getDictionary } from "@/lib/i18n";
 
+// @ts-ignore
+import Pagination from "@/components/Pagination";
+
 export const dynamic = "force-dynamic";
 
-export default async function InvoicesPage() {
+interface PageProps {
+    searchParams: Promise<{ page?: string }>;
+}
+
+export default async function InvoicesPage({ searchParams }: PageProps) {
+    const { page } = await searchParams;
+    const currentPage = parseInt(page || "1", 10);
+    const pageSize = 20;
+    const skip = (currentPage - 1) * pageSize;
+
     const { dict } = await getDictionary();
-    const invoices = await prisma.invoice.findMany({
-        include: { client: true },
-        orderBy: { createdAt: "desc" },
-    });
+
+    const [invoices, totalCount] = await Promise.all([
+        prisma.invoice.findMany({
+            include: { client: true },
+            orderBy: { createdAt: "desc" },
+            take: pageSize,
+            skip: skip,
+        }),
+        prisma.invoice.count()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     return (
         <div className={styles.container}>
@@ -62,6 +82,8 @@ export default async function InvoicesPage() {
                     )}
                 </tbody>
             </table>
+
+            <Pagination currentPage={currentPage} totalPages={totalPages} />
         </div>
     );
 }

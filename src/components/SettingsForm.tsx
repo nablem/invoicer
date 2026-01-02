@@ -1,6 +1,6 @@
 "use client";
 
-import { updateOrganization } from "@/actions/settings";
+import { updateOrganization, deleteTestData } from "@/actions/settings";
 import { Dictionary } from "@/lib/dictionaries";
 import styles from "./SettingsForm.module.css";
 import { useState, useRef } from "react";
@@ -126,6 +126,33 @@ export default function SettingsForm({ organization, dict }: SettingsFormProps) 
             <button type="submit" className={styles.button}>
                 {dict.settings.form.submit}
             </button>
+
+            <div className={styles.section} style={{ marginTop: "3rem", borderTop: "1px solid #eee", paddingTop: "2rem" }}>
+                <h3 style={{ marginBottom: "1rem" }}>{dict.settings.test_data.title}</h3>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                    <a
+                        href="/api/seed?count=5"
+                        target="_blank"
+                        className={styles.button}
+                        style={{ backgroundColor: "#10b981", textDecoration: "none", textAlign: "center" }}
+                    >
+                        {dict.settings.test_data.create}
+                    </a>
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            if (confirm(dict.settings.test_data.remove + "?")) {
+                                await deleteTestData();
+                                alert("Deleted");
+                            }
+                        }}
+                        className={styles.button}
+                        style={{ backgroundColor: "#ef4444" }}
+                    >
+                        {dict.settings.test_data.remove}
+                    </button>
+                </div>
+            </div>
         </form>
     );
 }
