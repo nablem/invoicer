@@ -13,7 +13,7 @@ export default function Navbar({ dict, lang, organization }: { dict: Dictionary;
     { href: "/", label: dict.common.dashboard },
     { href: "/clients", label: dict.common.clients },
     { href: "/quotes", label: dict.common.quotes },
-    { href: "/bills", label: dict.common.bills },
+    { href: "/invoices", label: dict.common.invoices },
     { href: "/settings", label: dict.settings.title },
   ];
 

@@ -4,32 +4,32 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export interface BillItemInput {
+export interface InvoiceItemInput {
     title?: string;
     description: string;
     quantity: number;
     price: number;
 }
 
-export interface BillInput {
+export interface InvoiceInput {
     clientId: string;
     date: Date;
     dueDate?: Date;
-    items: BillItemInput[];
+    items: InvoiceItemInput[];
     notes?: string;
     isRecurring?: boolean;
     recurringInterval?: string;
 }
 
 // Helper to parse items from FormData
-function parseItems(formData: FormData): BillItemInput[] {
-    const items: BillItemInput[] = [];
+function parseItems(formData: FormData): InvoiceItemInput[] {
+    const items: InvoiceItemInput[] = [];
     const entries = Array.from(formData.entries());
 
     // Find all indices
     const indices = new Set<number>();
     for (const [key] of entries) {
-        if (key.startsWith("description_")) {
+        if (key.startsWith("title_")) {
             const index = parseInt(key.split("_")[1]);
             indices.add(index);
         }
@@ -42,7 +42,7 @@ function parseItems(formData: FormData): BillItemInput[] {
         const quantity = parseFloat(formData.get(`quantity_${index}`) as string || "0");
         const price = parseFloat(formData.get(`price_${index}`) as string || "0");
 
-        if (description) {
+        if (title) {
             items.push({ title, description, quantity, price });
         }
     }
@@ -50,8 +50,9 @@ function parseItems(formData: FormData): BillItemInput[] {
     return items;
 }
 
-export async function createBill(formData: FormData) {
+export async function createInvoice(formData: FormData) {
     const clientId = formData.get("clientId") as string;
+    const quoteId = formData.get("quoteId") as string || undefined;
     const date = new Date(formData.get("date") as string);
     const dueDateStr = formData.get("dueDate") as string;
     const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
@@ -62,12 +63,13 @@ export async function createBill(formData: FormData) {
     const items = parseItems(formData);
     const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
 
-    const number = `B-${Date.now()}`;
+    const number = `INV-${Date.now()}`;
 
-    await prisma.bill.create({
+    await prisma.invoice.create({
         data: {
             number,
             clientId,
+            quoteId,
             date,
             dueDate,
             notes,
@@ -86,12 +88,13 @@ export async function createBill(formData: FormData) {
         },
     });
 
-    revalidatePath("/bills");
-    redirect("/bills");
+    revalidatePath("/invoices");
+    redirect("/invoices");
 }
 
-export async function updateBill(id: string, formData: FormData) {
+export async function updateInvoice(id: string, formData: FormData) {
     const clientId = formData.get("clientId") as string;
+    const quoteId = formData.get("quoteId") as string || null;
     const date = new Date(formData.get("date") as string);
     const dueDateStr = formData.get("dueDate") as string;
     const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
@@ -103,14 +106,15 @@ export async function updateBill(id: string, formData: FormData) {
     const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
 
     await prisma.$transaction(async (tx) => {
-        await tx.billItem.deleteMany({
-            where: { billId: id }
+        await tx.invoiceItem.deleteMany({
+            where: { invoiceId: id }
         });
 
-        await tx.bill.update({
+        await tx.invoice.update({
             where: { id },
             data: {
                 clientId,
+                quoteId,
                 date,
                 dueDate,
                 notes,
@@ -130,16 +134,31 @@ export async function updateBill(id: string, formData: FormData) {
         });
     });
 
-    revalidatePath("/bills");
-    redirect("/bills");
+    revalidatePath("/invoices");
+    redirect("/invoices");
 }
 
-export async function deleteBill(id: string) {
-    await prisma.bill.delete({ where: { id } });
-    revalidatePath("/bills");
+export async function deleteInvoice(id: string) {
+    await prisma.invoice.delete({ where: { id } });
+    revalidatePath("/invoices");
 }
 
-export async function createBillFromQuote(quoteId: string) {
+export async function updateInvoiceStatus(id: string, status: string) {
+    const validStatuses = ["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"];
+    if (!validStatuses.includes(status)) {
+        throw new Error("Invalid status");
+    }
+
+    await prisma.invoice.update({
+        where: { id },
+        data: { status }
+    });
+
+    revalidatePath("/invoices");
+    revalidatePath(`/invoices/${id}`);
+}
+
+export async function createInvoiceFromQuote(quoteId: string) {
     const quote = await prisma.quote.findUnique({
         where: { id: quoteId },
         include: { items: true }
@@ -147,9 +166,9 @@ export async function createBillFromQuote(quoteId: string) {
 
     if (!quote) throw new Error("Quote not found");
 
-    const number = `B-${Date.now()}`; // Generate bill number
+    const number = `INV-${Date.now()}`; // Generate invoice number
 
-    await prisma.bill.create({
+    await prisma.invoice.create({
         data: {
             number,
             clientId: quote.clientId,
@@ -170,6 +189,6 @@ export async function createBillFromQuote(quoteId: string) {
         }
     });
 
-    revalidatePath("/bills");
-    redirect("/bills");
+    revalidatePath("/invoices");
+    redirect("/invoices");
 }

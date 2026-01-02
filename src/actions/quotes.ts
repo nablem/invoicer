@@ -27,7 +27,7 @@ function parseItems(formData: FormData): QuoteItemInput[] {
     // Find all indices
     const indices = new Set<number>();
     for (const [key] of entries) {
-        if (key.startsWith("description_")) {
+        if (key.startsWith("title_")) {
             const index = parseInt(key.split("_")[1]);
             indices.add(index);
         }
@@ -40,7 +40,7 @@ function parseItems(formData: FormData): QuoteItemInput[] {
         const quantity = parseFloat(formData.get(`quantity_${index}`) as string || "0");
         const price = parseFloat(formData.get(`price_${index}`) as string || "0");
 
-        if (description) {
+        if (title) {
             items.push({ title, description, quantity, price });
         }
     }

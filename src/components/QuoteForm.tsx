@@ -146,6 +146,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                                 value={item.title || ""}
                                 onChange={(e) => updateItem(index, "title", e.target.value)}
                                 className={styles.input}
+                                required
                             />
                             <SmartTextarea
                                 placeholder={dict.quotes.form.description}
@@ -153,7 +154,6 @@ export default function QuoteForm({ clients, quote, dict, convertAction }: Quote
                                 onValueChange={(val) => updateItem(index, "description", val)}
                                 className={styles.textarea}
                                 style={{ minHeight: '80px', resize: 'vertical' }}
-                                required
                             />
                         </div>
                         <input

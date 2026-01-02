@@ -12,7 +12,7 @@ interface Props {
 export async function GET(req: NextRequest, { params }: Props) {
     const { type, id } = await params;
 
-    if (type !== "quote" && type !== "bill") {
+    if (type !== "quote" && type !== "invoice") {
         return new NextResponse("Invalid type", { status: 400 });
     }
 
@@ -36,20 +36,20 @@ export async function GET(req: NextRequest, { params }: Props) {
         };
         filename = `Quote-${quote.number}.pdf`;
     } else {
-        const bill = await prisma.bill.findUnique({
+        const invoice = await prisma.invoice.findUnique({
             where: { id },
             include: { client: true, items: true },
         });
-        if (!bill) return new NextResponse("Bill not found", { status: 404 });
+        if (!invoice) return new NextResponse("Invoice not found", { status: 404 });
 
         data = {
-            ...bill,
-            date: new Date(bill.date).toLocaleDateString(),
-            dueDate: bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : null,
-            total: bill.total.toFixed(2),
-            items: bill.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+            ...invoice,
+            date: new Date(invoice.date).toLocaleDateString(),
+            dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : null,
+            total: invoice.total.toFixed(2),
+            items: invoice.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
         };
-        filename = `Bill-${bill.number}.pdf`;
+        filename = `Invoice-${invoice.number}.pdf`;
     }
 
     try {

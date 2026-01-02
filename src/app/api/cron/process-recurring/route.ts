@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendBill } from "@/actions/send";
+import { sendInvoice } from "@/actions/send";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +8,8 @@ export async function GET() {
     try {
         const today = new Date();
 
-        // Find bills that are recurring and due
-        const dueBills = await prisma.bill.findMany({
+        // Find invoices that are recurring and due
+        const dueInvoices = await prisma.invoice.findMany({
             where: {
                 isRecurring: true,
                 nextRecurringDate: {
@@ -23,21 +23,21 @@ export async function GET() {
 
         const results = [];
 
-        for (const bill of dueBills) {
-            // 1. Create new bill based on the template bill
-            const newBillNumber = `B-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        for (const invoice of dueInvoices) {
+            // 1. Create new invoice based on the template invoice
+            const newInvoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-            const newBill = await prisma.bill.create({
+            const newInvoice = await prisma.invoice.create({
                 data: {
-                    number: newBillNumber,
-                    clientId: bill.clientId,
+                    number: newInvoiceNumber,
+                    clientId: invoice.clientId,
                     date: new Date(),
                     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 30 days due
                     status: "DRAFT",
-                    total: bill.total,
-                    notes: bill.notes,
+                    total: invoice.total,
+                    notes: invoice.notes,
                     items: {
-                        create: bill.items.map(item => ({
+                        create: invoice.items.map(item => ({
                             description: item.description,
                             quantity: item.quantity,
                             price: item.price,
@@ -47,9 +47,9 @@ export async function GET() {
                 }
             });
 
-            // 2. Update next recurring date for the parent bill
-            let nextDate = new Date(bill.nextRecurringDate || today);
-            switch (bill.recurringInterval) {
+            // 2. Update next recurring date for the parent invoice
+            let nextDate = new Date(invoice.nextRecurringDate || today);
+            switch (invoice.recurringInterval) {
                 case "WEEKLY":
                     nextDate.setDate(nextDate.getDate() + 7);
                     break;
@@ -66,17 +66,17 @@ export async function GET() {
                     nextDate.setMonth(nextDate.getMonth() + 1); // Default monthly
             }
 
-            await prisma.bill.update({
-                where: { id: bill.id },
+            await prisma.invoice.update({
+                where: { id: invoice.id },
                 data: { nextRecurringDate: nextDate }
             });
 
-            // 3. Optional: Auto-send the new bill
-            // await sendBill(newBill.id);
+            // 3. Optional: Auto-send the new invoice
+            // await sendInvoice(newInvoice.id);
 
             results.push({
-                parentBillId: bill.id,
-                newBillId: newBill.id,
+                parentInvoiceId: invoice.id,
+                newInvoiceId: newInvoice.id,
                 newDate: nextDate
             });
         }
@@ -88,7 +88,7 @@ export async function GET() {
         });
 
     } catch (error) {
-        console.error("Recurring bills error:", error);
+        console.error("Recurring invoices error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

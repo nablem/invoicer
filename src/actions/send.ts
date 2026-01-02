@@ -43,40 +43,40 @@ export async function sendQuote(quoteId: string) {
     revalidatePath("/quotes");
 }
 
-export async function sendBill(billId: string) {
-    const bill = await prisma.bill.findUnique({
-        where: { id: billId },
+export async function sendInvoice(invoiceId: string) {
+    const invoice = await prisma.invoice.findUnique({
+        where: { id: invoiceId },
         include: { client: true, items: true },
     });
-    if (!bill) throw new Error("Bill not found");
+    if (!invoice) throw new Error("Invoice not found");
 
     // Generate PDF
     const data = {
-        ...bill,
-        date: new Date(bill.date).toLocaleDateString(),
-        dueDate: bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : null,
-        total: bill.total.toFixed(2),
-        items: bill.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+        ...invoice,
+        date: new Date(invoice.date).toLocaleDateString(),
+        dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : null,
+        total: invoice.total.toFixed(2),
+        items: invoice.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
     };
-    const pdfBuffer = await generatePdf("bill", data);
+    const pdfBuffer = await generatePdf("invoice", data);
 
-    if (!bill.client.email) {
+    if (!invoice.client.email) {
         throw new Error("Client has no email address");
     }
 
     // Send Email
     await sendEmail(
-        { email: bill.client.email, name: bill.client.name },
-        `Bill ${bill.number} from FreelanceHub`,
-        `<p>Dear ${bill.client.name},</p><p>Please find attached bill ${bill.number}.</p>`,
-        { filename: `Bill-${bill.number}.pdf`, content: pdfBuffer }
+        { email: invoice.client.email, name: invoice.client.name },
+        `Invoice ${invoice.number} from FreelanceHub`,
+        `<p>Dear ${invoice.client.name},</p><p>Please find attached invoice ${invoice.number}.</p>`,
+        { filename: `Invoice-${invoice.number}.pdf`, content: pdfBuffer }
     );
 
     // Update Status
-    await prisma.bill.update({
-        where: { id: billId },
+    await prisma.invoice.update({
+        where: { id: invoiceId },
         data: { status: "SENT" },
     });
 
-    revalidatePath("/bills");
+    revalidatePath("/invoices");
 }

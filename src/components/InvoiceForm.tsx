@@ -1,7 +1,7 @@
 "use client";
 
-import { createBill, updateBill } from "@/actions/bills";
-import styles from "./BillForm.module.css";
+import { createInvoice, updateInvoice } from "@/actions/invoices";
+import styles from "./InvoiceForm.module.css";
 import { useState } from "react";
 import Link from "next/link";
 import { Dictionary } from "@/lib/dictionaries";
@@ -16,11 +16,13 @@ interface FormItem {
     total: number;
 }
 
-interface BillFormProps {
+interface InvoiceFormProps {
     clients: { id: string; name: string }[];
-    bill?: {
+    quotes: { id: string; number: string }[];
+    invoice?: {
         id: string;
         clientId: string;
+        quoteId?: string | null;
         date: Date;
         dueDate: Date | null;
         number: string;
@@ -32,9 +34,9 @@ interface BillFormProps {
     dict: Dictionary;
 }
 
-export default function BillForm({ clients, bill, dict }: BillFormProps) {
-    const isEditing = !!bill;
-    const action = isEditing ? updateBill.bind(null, bill.id) : createBill;
+export default function InvoiceForm({ clients, quotes, invoice, dict }: InvoiceFormProps) {
+    const isEditing = !!invoice;
+    const action = isEditing ? updateInvoice.bind(null, invoice.id) : createInvoice;
 
     // Default due date is 30 days from now
     const defaultDueDate = new Date();
@@ -43,9 +45,9 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
 
     // Initialize items with one empty row if creating new, or existing items
     const [items, setItems] = useState<FormItem[]>(
-        bill?.items || [{ title: "", description: "", quantity: 1, price: 0, total: 0 }]
+        invoice?.items || [{ title: "", description: "", quantity: 1, price: 0, total: 0 }]
     );
-    const [isRecurring, setIsRecurring] = useState(bill?.isRecurring || false);
+    const [isRecurring, setIsRecurring] = useState(invoice?.isRecurring || false);
 
     const addItem = () => {
         setItems([...items, { title: "", description: "", quantity: 1, price: 0, total: 0 }]);
@@ -83,13 +85,31 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                         id="clientId"
                         name="clientId"
                         required
-                        defaultValue={bill?.clientId || ""}
+                        defaultValue={invoice?.clientId || ""}
                         className={styles.select}
                     >
                         <option value="">{dict.quotes.form.select_client}</option>
                         {clients.map((client) => (
                             <option key={client.id} value={client.id}>
                                 {client.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className={styles.group}>
+                    <label htmlFor="quoteId" className={styles.label}>
+                        {dict.common.quotes}
+                    </label>
+                    <select
+                        id="quoteId"
+                        name="quoteId"
+                        defaultValue={invoice?.quoteId || ""}
+                        className={styles.select}
+                    >
+                        <option value="">-</option>
+                        {quotes.map((quote) => (
+                            <option key={quote.id} value={quote.id}>
+                                {quote.number}
                             </option>
                         ))}
                     </select>
@@ -106,19 +126,19 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                         id="date"
                         name="date"
                         required
-                        defaultValue={bill ? new Date(bill.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                        defaultValue={invoice ? new Date(invoice.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                         className={styles.input}
                     />
                 </div>
                 <div className={styles.group}>
                     <label htmlFor="dueDate" className={styles.label}>
-                        {dict.bills.form.due_date}
+                        {dict.invoices.form.due_date}
                     </label>
                     <input
                         type="date"
                         id="dueDate"
                         name="dueDate"
-                        defaultValue={bill?.dueDate ? new Date(bill.dueDate).toISOString().split('T')[0] : defaultDueDateStr}
+                        defaultValue={invoice?.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : defaultDueDateStr}
                         className={styles.input}
                     />
                 </div>
@@ -133,25 +153,25 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                     style={{ width: 'auto' }}
                 />
                 <label htmlFor="isRecurring" className={styles.label} style={{ marginBottom: 0 }}>
-                    {dict.bills.recurring_bill}
+                    {dict.invoices.recurring_invoice}
                 </label>
             </div>
 
             {isRecurring && (
                 <div className={styles.group}>
                     <label htmlFor="recurringInterval" className={styles.label}>
-                        {dict.bills.recurring} Interval
+                        {dict.invoices.recurring} Interval
                     </label>
                     <select
                         id="recurringInterval"
                         name="recurringInterval"
-                        defaultValue={bill?.recurringInterval || "MONTHLY"}
+                        defaultValue={invoice?.recurringInterval || "MONTHLY"}
                         className={styles.select}
                     >
-                        <option value="WEEKLY">{dict.bills.intervals.weekly}</option>
-                        <option value="MONTHLY">{dict.bills.intervals.monthly}</option>
-                        <option value="QUARTERLY">{dict.bills.intervals.quarterly}</option>
-                        <option value="YEARLY">{dict.bills.intervals.yearly}</option>
+                        <option value="WEEKLY">{dict.invoices.intervals.weekly}</option>
+                        <option value="MONTHLY">{dict.invoices.intervals.monthly}</option>
+                        <option value="QUARTERLY">{dict.invoices.intervals.quarterly}</option>
+                        <option value="YEARLY">{dict.invoices.intervals.yearly}</option>
                     </select>
                 </div>
             )}
@@ -180,6 +200,7 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                                 value={item.title || ""}
                                 onChange={(e) => updateItem(index, "title", e.target.value)}
                                 className={styles.input}
+                                required
                             />
                             <SmartTextarea
                                 placeholder={dict.quotes.form.description}
@@ -187,7 +208,6 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                                 onValueChange={(val) => updateItem(index, "description", val)}
                                 className={styles.textarea}
                                 style={{ minHeight: '80px', resize: 'vertical' }}
-                                required
                             />
                         </div>
                         <input
@@ -235,13 +255,16 @@ export default function BillForm({ clients, bill, dict }: BillFormProps) {
                 <textarea
                     id="notes"
                     name="notes"
-                    defaultValue={bill?.notes || ""}
+                    defaultValue={invoice?.notes || ""}
                     className={styles.textarea}
                     rows={4}
                 />
             </div>
 
-            <div className={styles.actions}>
+            <div className={styles.actions} style={{ display: 'flex', gap: '1rem' }}>
+                <Link href="/invoices" className={styles.secondaryButton}>
+                    {dict.common.back}
+                </Link>
                 <button type="submit" className={styles.button}>
                     {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
                 </button>

@@ -22,7 +22,8 @@ model Client {
   vatNumber      String?
   companyId      String?
   quotes         Quote[]
-  bills          Bill[]
+
+  invoices       Invoice[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -39,7 +40,7 @@ model Quote {
   total     Float       @default(0)
   currency  String      @default("EUR")
   notes     String?
-  bills     Bill[]      @relation("QuoteToBill")
+  invoices  Invoice[]   @relation("QuoteToInvoice")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
@@ -55,17 +56,17 @@ model QuoteItem {
   total       Float
 }
 
-model Bill {
+model Invoice {
   id               String     @id @default(uuid())
   number           String     @unique
   clientId         String
   client           Client     @relation(fields: [clientId], references: [id])
   quoteId          String?
-  quote            Quote?     @relation("QuoteToBill", fields: [quoteId], references: [id])
+  quote            Quote?     @relation("QuoteToInvoice", fields: [quoteId], references: [id])
   date             DateTime   @default(now())
   dueDate          DateTime?
   status           String     @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
-  items            BillItem[]
+  items            InvoiceItem[]
   total            Float      @default(0)
   currency         String     @default("EUR")
   notes            String?
@@ -79,10 +80,10 @@ model Bill {
   updatedAt        DateTime   @updatedAt
 }
 
-model BillItem {
+model InvoiceItem {
   id          String @id @default(uuid())
-  billId      String
-  bill        Bill   @relation(fields: [billId], references: [id], onDelete: Cascade)
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   title       String?
   description String
   quantity    Float

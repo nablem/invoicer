@@ -11,15 +11,15 @@ export default async function DashboardPage() {
   const [
     clientCount,
     quoteCount,
-    billCount,
+    invoiceCount,
     recentQuotes,
-    recentBills
+    recentInvoices
   ] = await Promise.all([
     prisma.client.count(),
     prisma.quote.count(),
-    prisma.bill.count(),
+    prisma.invoice.count(),
     prisma.quote.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { client: true } }),
-    prisma.bill.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { client: true } }),
+    prisma.invoice.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { client: true } }),
   ]);
 
   return (
@@ -38,9 +38,9 @@ export default async function DashboardPage() {
           <Link href="/quotes" className={styles.link}>{dict.dashboard.view_quotes}</Link>
         </div>
         <div className={styles.card}>
-          <h3>{dict.common.bills}</h3>
-          <p className={styles.number}>{billCount}</p>
-          <Link href="/bills" className={styles.link}>{dict.dashboard.view_bills}</Link>
+          <h3>{dict.common.invoices}</h3>
+          <p className={styles.number}>{invoiceCount}</p>
+          <Link href="/invoices" className={styles.link}>{dict.dashboard.view_invoices}</Link>
         </div>
       </div>
 
@@ -58,15 +58,15 @@ export default async function DashboardPage() {
           </ul>
         </div>
         <div className={styles.section}>
-          <h2>{dict.dashboard.recent_bills}</h2>
+          <h2>{dict.dashboard.recent_invoices}</h2>
           <ul className={styles.list}>
-            {recentBills.map(b => (
+            {recentInvoices.map(b => (
               <li key={b.id} className={styles.listItem}>
                 <span>{b.number} - {b.client.name}</span>
                 <span className={styles.amount}>{b.total.toFixed(2)} {b.currency}</span>
               </li>
             ))}
-            {recentBills.length === 0 && <p style={{ color: 'var(--muted-foreground)' }}>{dict.dashboard.no_recent_bills}</p>}
+            {recentInvoices.length === 0 && <p style={{ color: 'var(--muted-foreground)' }}>{dict.dashboard.no_recent_invoices}</p>}
           </ul>
         </div>
       </div>

@@ -1,24 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import QuoteForm from "@/components/QuoteForm";
+import InvoiceForm from "@/components/InvoiceForm";
 import styles from "../page.module.css";
-import SplitButton from "@/components/SplitButton";
-import { createInvoiceFromQuote } from "@/actions/invoices";
-import { sendQuote } from "@/actions/send";
-import { sendForSigning } from "@/actions/signing";
-import { updateQuoteStatus as updateStatus } from "@/actions/quotes";
+import { sendInvoice } from "@/actions/send";
 import { getDictionary } from "@/lib/i18n";
+import SplitButton from "@/components/SplitButton";
+import { updateInvoiceStatus as updateStatus } from "@/actions/invoices";
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function EditQuotePage({ params }: PageProps) {
+export default async function EditInvoicePage({ params }: PageProps) {
     const { id } = await params;
     const { dict } = await getDictionary();
 
-    const quote = await prisma.quote.findUnique({
+    const invoice = await prisma.invoice.findUnique({
         where: { id },
         include: { items: true },
     });
@@ -28,8 +26,13 @@ export default async function EditQuotePage({ params }: PageProps) {
         select: { id: true, name: true }
     });
 
+    const quotes = await prisma.quote.findMany({
+        orderBy: { number: "desc" },
+        select: { id: true, number: true }
+    });
 
-    if (!quote) {
+
+    if (!invoice) {
         notFound();
     }
 
@@ -37,50 +40,51 @@ export default async function EditQuotePage({ params }: PageProps) {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className={styles.title}>{quote.number}</h1>
-                    <span className={`${styles.status} ${styles['status_' + quote.status]}`}>
-                        {(dict.quotes.status as any)[quote.status] || quote.status}
+                    <h1 className={styles.title}>{invoice.number}</h1>
+                    <span className={`${styles.status} ${styles['status_' + invoice.status]}`}>
+                        {(dict.invoices.status as any)[invoice.status] || invoice.status}
                     </span>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <a
-                        href={`/api/pdf/quote/${quote.id}`}
+                        href={`/api/pdf/invoice/${invoice.id}`}
                         target="_blank"
                         className={styles.secondaryButton}
                         style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                     >
                         {dict.quotes.download_pdf}
                     </a>
+
                     <SplitButton
-                        mainAction={sendQuote.bind(null, quote.id)}
+                        mainAction={sendInvoice.bind(null, invoice.id)}
                         mainLabel={dict.quotes.send_email}
                         dropdownItems={[
-                            { action: updateStatus.bind(null, quote.id, "SENT"), label: dict.quotes.mark_as_sent }
+                            { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent }
                         ]}
                         color="blue"
                     />
 
                     <SplitButton
-                        mainAction={sendForSigning.bind(null, quote.id)}
-                        mainLabel={dict.quotes.sign_docuseal}
-                        dropdownItems={[
-                            { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted }
-                        ]}
+                        mainAction={updateStatus.bind(null, invoice.id, "PAID")}
+                        mainLabel={dict.invoices.mark_as_paid}
+                        dropdownItems={[]}
                         color="green"
                     />
+
+
                 </div>
             </div>
-            <QuoteForm
+            <InvoiceForm
                 clients={clients}
-                quote={{
-                    ...quote,
-                    items: quote.items.map(item => ({
+                quotes={quotes}
+                invoice={{
+                    ...invoice,
+                    items: invoice.items.map(item => ({
                         ...item,
                         title: item.title ?? undefined
                     }))
                 }}
                 dict={dict}
-                convertAction={createInvoiceFromQuote.bind(null, quote.id)}
             />
         </div>
     );
