@@ -9,6 +9,7 @@ export interface QuoteItemInput {
     description: string;
     quantity: number;
     price: number;
+    vat: number;
 }
 
 export interface QuoteInput {
@@ -39,9 +40,10 @@ function parseItems(formData: FormData): QuoteItemInput[] {
         const description = formData.get(`description_${index}`) as string;
         const quantity = parseFloat(formData.get(`quantity_${index}`) as string || "0");
         const price = parseFloat(formData.get(`price_${index}`) as string || "0");
+        const vat = parseFloat(formData.get(`vat_${index}`) as string || "0");
 
         if (title) {
-            items.push({ title, description, quantity, price });
+            items.push({ title, description, quantity, price, vat });
         }
     }
 
@@ -57,7 +59,7 @@ export async function createQuote(formData: FormData) {
 
     const items = parseItems(formData);
 
-    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
     // Generate a simple quote number (e.g. Q-TIMESTAMP)
     const number = `Q-${Date.now()}`;
@@ -76,7 +78,8 @@ export async function createQuote(formData: FormData) {
                     description: item.description,
                     quantity: item.quantity,
                     price: item.price,
-                    total: item.quantity * item.price,
+                    vat: item.vat,
+                    total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
                 })),
             },
         },
@@ -94,7 +97,7 @@ export async function updateQuote(id: string, formData: FormData) {
     const notes = formData.get("notes") as string;
 
     const items = parseItems(formData);
-    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
     // Transaction to update quote and replace items
     await prisma.$transaction(async (tx) => {
@@ -118,7 +121,8 @@ export async function updateQuote(id: string, formData: FormData) {
                         description: item.description,
                         quantity: item.quantity,
                         price: item.price,
-                        total: item.quantity * item.price,
+                        vat: item.vat,
+                        total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
                     })),
                 }
             }
@@ -126,7 +130,7 @@ export async function updateQuote(id: string, formData: FormData) {
     });
 
     revalidatePath("/quotes");
-    redirect("/quotes");
+    revalidatePath(`/quotes/${id}`);
 }
 
 export async function deleteQuote(id: string) {

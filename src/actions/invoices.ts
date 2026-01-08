@@ -9,6 +9,7 @@ export interface InvoiceItemInput {
     description: string;
     quantity: number;
     price: number;
+    vat: number;
 }
 
 export interface InvoiceInput {
@@ -41,9 +42,10 @@ function parseItems(formData: FormData): InvoiceItemInput[] {
         const description = formData.get(`description_${index}`) as string;
         const quantity = parseFloat(formData.get(`quantity_${index}`) as string || "0");
         const price = parseFloat(formData.get(`price_${index}`) as string || "0");
+        const vat = parseFloat(formData.get(`vat_${index}`) as string || "0");
 
         if (title) {
-            items.push({ title, description, quantity, price });
+            items.push({ title, description, quantity, price, vat });
         }
     }
 
@@ -61,7 +63,7 @@ export async function createInvoice(formData: FormData) {
     const recurringInterval = formData.get("recurringInterval") as string;
 
     const items = parseItems(formData);
-    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
     const number = `INV-${Date.now()}`;
 
@@ -82,7 +84,8 @@ export async function createInvoice(formData: FormData) {
                     description: item.description,
                     quantity: item.quantity,
                     price: item.price,
-                    total: item.quantity * item.price,
+                    vat: item.vat,
+                    total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
                 })),
             },
         },
@@ -103,7 +106,7 @@ export async function updateInvoice(id: string, formData: FormData) {
     const recurringInterval = formData.get("recurringInterval") as string;
 
     const items = parseItems(formData);
-    const total = items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
     await prisma.$transaction(async (tx) => {
         await tx.invoiceItem.deleteMany({
@@ -127,7 +130,8 @@ export async function updateInvoice(id: string, formData: FormData) {
                         description: item.description,
                         quantity: item.quantity,
                         price: item.price,
-                        total: item.quantity * item.price,
+                        vat: item.vat,
+                        total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
                     })),
                 }
             }
@@ -135,7 +139,7 @@ export async function updateInvoice(id: string, formData: FormData) {
     });
 
     revalidatePath("/invoices");
-    redirect("/invoices");
+    revalidatePath(`/invoices/${id}`);
 }
 
 export async function deleteInvoice(id: string) {
@@ -183,6 +187,7 @@ export async function createInvoiceFromQuote(quoteId: string) {
                     description: item.description,
                     quantity: item.quantity,
                     price: item.price,
+                    vat: (item as any).vat || 0,
                     total: item.total
                 }))
             }

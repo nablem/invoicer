@@ -31,6 +31,8 @@ export default async function EditInvoicePage({ params }: PageProps) {
         select: { id: true, number: true }
     });
 
+    const organization = await prisma.organization.findFirst();
+
 
     if (!invoice) {
         notFound();
@@ -87,11 +89,13 @@ export default async function EditInvoicePage({ params }: PageProps) {
                     ...invoice,
                     items: invoice.items.map(item => ({
                         ...item,
-                        title: item.title ?? undefined
+                        title: item.title ?? undefined,
+                        vat: item.vat
                     }))
                 }}
                 dict={dict}
                 readOnly={isLocked}
+                defaultVat={organization?.defaultVat || 0}
             />
         </div>
     );

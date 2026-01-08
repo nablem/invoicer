@@ -28,6 +28,8 @@ export default async function EditQuotePage({ params }: PageProps) {
         select: { id: true, name: true }
     });
 
+    const organization = await prisma.organization.findFirst();
+
 
     if (!quote) {
         notFound();
@@ -81,12 +83,14 @@ export default async function EditQuotePage({ params }: PageProps) {
                     ...quote,
                     items: quote.items.map(item => ({
                         ...item,
-                        title: item.title ?? undefined
+                        title: item.title ?? undefined,
+                        vat: item.vat
                     }))
                 }}
                 dict={dict}
                 convertAction={createInvoiceFromQuote.bind(null, quote.id)}
                 readOnly={isLocked}
+                defaultVat={organization?.defaultVat || 0}
             />
         </div>
     );

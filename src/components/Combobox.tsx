@@ -79,7 +79,7 @@ export default function Combobox({
     };
 
     return (
-        <div className={styles.wrapper} ref={wrapperRef} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : {}}>
+        <div className={styles.wrapper} ref={wrapperRef} style={disabled ? { pointerEvents: 'none' } : {}}>
             <label className={styles.label}>{label}</label>
             <input type="hidden" name={name} value={selectedItem?.id || ""} />
 

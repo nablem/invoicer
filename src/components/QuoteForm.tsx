@@ -15,6 +15,7 @@ interface FormItem {
     description: string;
     quantity: number;
     price: number;
+    vat: number;
     total: number;
 }
 
@@ -32,9 +33,10 @@ interface QuoteFormProps {
     dict: Dictionary;
     convertAction?: any;
     readOnly?: boolean;
+    defaultVat: number;
 }
 
-export default function QuoteForm({ clients, quote, dict, convertAction, readOnly }: QuoteFormProps) {
+export default function QuoteForm({ clients, quote, dict, convertAction, readOnly, defaultVat }: QuoteFormProps) {
     const isEditing = !!quote;
     const action = isEditing ? updateQuote.bind(null, quote.id) : createQuote;
 
@@ -45,20 +47,21 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
 
     // Initialize items with one empty row if creating new, or existing items
     const [items, setItems] = useState<FormItem[]>(
-        quote?.items || [{ title: "", description: "", quantity: 1, price: 0, total: 0 }]
+        quote?.items.map(i => ({ ...i, vat: (i as any).vat ?? 0 })) || [{ title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]
     );
 
     const addItem = () => {
-        setItems([...items, { title: "", description: "", quantity: 1, price: 0, total: 0 }]);
+        setItems([...items, { title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
     };
 
     const updateItem = (index: number, field: keyof FormItem, value: any) => {
         const newItems = [...items];
         const item = { ...newItems[index] };
 
-        if (field === "quantity" || field === "price") {
+        if (field === "quantity" || field === "price" || field === "vat") {
             item[field] = Number(value);
-            item.total = item.quantity * item.price;
+            // Total = Qty * Price * (1 + VAT/100)
+            item.total = item.quantity * item.price * (1 + (item.vat || 0) / 100);
         } else if (field === "description" || field === "title") {
             item[field] = value;
         }
@@ -71,10 +74,18 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
         setItems(items.filter((_, i) => i !== index));
     };
 
+    const [saved, setSaved] = useState(false);
+
+    const handleSubmit = async (formData: FormData) => {
+        await action(formData);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+    };
+
     const total = items.reduce((sum, item) => sum + item.total, 0);
 
     return (
-        <form action={action} className={styles.form}>
+        <form action={handleSubmit} className={styles.form}>
             <div className={styles.row}>
                 <div className={styles.group}>
                     <Combobox
@@ -125,21 +136,23 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
             <div className={styles.itemsSection}>
                 <h3>{dict.quotes.form.items_section}</h3>
                 <div className={styles.itemsHeader}>
-                    <div style={{ flex: 3 }}>{dict.quotes.form.description}</div>
-                    <div style={{ flex: 1 }}>{dict.quotes.form.qty}</div>
-                    <div style={{ flex: 1 }}>{dict.quotes.form.price}</div>
-                    <div style={{ flex: 1 }}>{dict.common.total}</div>
-                    <div style={{ width: '40px' }}></div>
+                    <div>{dict.quotes.form.description}</div>
+                    <div>{dict.quotes.form.qty}</div>
+                    <div>{dict.quotes.form.price}</div>
+                    <div>{dict.quotes.form.vat}</div>
+                    <div>{dict.common.total}</div>
+                    <div></div>
                 </div>
 
                 {items.map((item, index) => (
-                    <div key={index} className={styles.itemRow} style={{ alignItems: 'flex-start' }}>
+                    <div key={index} className={styles.itemRow}>
                         <input type="hidden" name={`title_${index}`} value={item.title || ""} />
                         <input type="hidden" name={`description_${index}`} value={item.description} />
                         <input type="hidden" name={`quantity_${index}`} value={item.quantity} />
                         <input type="hidden" name={`price_${index}`} value={item.price} />
+                        <input type="hidden" name={`vat_${index}`} value={item.vat} />
 
-                        <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <input
                                 type="text"
                                 placeholder={dict.quotes.form.title}
@@ -167,7 +180,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                             value={item.quantity}
                             onChange={(e) => updateItem(index, "quantity", e.target.value)}
                             className={styles.input}
-                            style={{ flex: 1 }}
+                            style={{ textAlign: 'right' }}
                             disabled={readOnly}
                         />
                         <input
@@ -178,10 +191,21 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                             value={item.price}
                             onChange={(e) => updateItem(index, "price", e.target.value)}
                             className={styles.input}
-                            style={{ flex: 1 }}
+                            style={{ textAlign: 'right' }}
                             disabled={readOnly}
                         />
-                        <div style={{ flex: 1, fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            placeholder={dict.quotes.form.vat}
+                            value={item.vat}
+                            onChange={(e) => updateItem(index, "vat", e.target.value)}
+                            className={styles.input}
+                            style={{ textAlign: 'right' }}
+                            disabled={readOnly}
+                        />
+                        <div style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
                             {item.total.toFixed(2)}
                         </div>
                         {!readOnly && (
@@ -199,8 +223,8 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                 )}
 
                 <div className={styles.totalRow}>
-                    <span>{dict.common.total}:</span>
-                    <span>{total.toFixed(2)}</span>
+                    <span>{items.some(i => i.vat > 0) ? dict.common.total_ttc : dict.common.total_ht}:</span>
+                    <span>{items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</span>
                 </div>
             </div>
 
@@ -226,8 +250,14 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                         {dict.common.back}
                     </Link>
                     {!readOnly && (
-                        <button type="submit" className={styles.button}>
-                            {isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create}
+                        <button type="submit" className={styles.button} disabled={saved} style={saved ? { background: '#22c55e' } : {}}>
+                            {saved ? (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    ✓ {dict.common.saved}
+                                </span>
+                            ) : (
+                                isEditing ? dict.quotes.form.submit_update : dict.quotes.form.submit_create
+                            )}
                         </button>
                     )}
                 </div>

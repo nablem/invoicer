@@ -53,20 +53,24 @@
     border-radius: var(--radius);
 }
 
+.gridLayout {
+    display: grid;
+    grid-template-columns: 3fr 0.7fr 1fr 0.7fr 1fr 40px;
+    gap: 1rem;
+    align-items: center;
+}
+
 .itemsHeader {
-    display: flex;
-    gap: 0.5rem;
+    composes: gridLayout;
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--muted-foreground);
-    padding-right: 2rem;
 }
 
 .itemRow {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+    composes: gridLayout;
+    align-items: flex-start;
 }
 
 .deleteButton {

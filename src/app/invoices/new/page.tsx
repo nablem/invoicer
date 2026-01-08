@@ -14,10 +14,12 @@ export default async function NewInvoicePage() {
         select: { id: true, number: true }
     });
 
+    const organization = await prisma.organization.findFirst();
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.invoices.new_invoice}</h1>
-            <InvoiceForm clients={clients} quotes={quotes} dict={dict} />
+            <InvoiceForm clients={clients} quotes={quotes} dict={dict} defaultVat={organization?.defaultVat || 0} />
         </div>
     );
 }

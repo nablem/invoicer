@@ -10,10 +10,12 @@ export default async function NewQuotePage() {
         select: { id: true, name: true }
     });
 
+    const organization = await prisma.organization.findFirst();
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.quotes.new_quote}</h1>
-            <QuoteForm clients={clients} dict={dict} />
+            <QuoteForm clients={clients} dict={dict} defaultVat={organization?.defaultVat || 0} />
         </div>
     );
 }

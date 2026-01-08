@@ -53,6 +53,7 @@ model QuoteItem {
   description String
   quantity    Float
   price       Float
+  vat         Float  @default(0)
   total       Float
 }
 
@@ -88,6 +89,7 @@ model InvoiceItem {
   description String
   quantity    Float
   price       Float
+  vat         Float  @default(0)
   total       Float
 }
 
