@@ -77,6 +77,16 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
                         <label className={styles.label}>{dict.settings.form.vat_number}</label>
                         <input name="vatNumber" defaultValue={organization?.vatNumber} className={styles.input} />
                     </div>
+                    <div className={styles.group}>
+                        <label className={styles.label}>{dict.settings.form.vat_rate}</label>
+                        <input
+                            name="defaultVat"
+                            type="number"
+                            step="0.1"
+                            defaultValue={organization?.defaultVat ?? 0}
+                            className={styles.input}
+                        />
+                    </div>
                 </div>
 
                 <div className={styles.group}>

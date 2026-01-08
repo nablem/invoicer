@@ -14,6 +14,7 @@ export async function updateOrganization(formData: FormData) {
     const name = formData.get("name") as string;
     const companyId = formData.get("companyId") as string;
     const vatNumber = formData.get("vatNumber") as string;
+    const defaultVat = parseFloat(formData.get("defaultVat") as string) || 0;
     const address = formData.get("address") as string;
     const city = formData.get("city") as string;
     const zipCode = formData.get("zipCode") as string;
@@ -51,6 +52,7 @@ export async function updateOrganization(formData: FormData) {
                 name,
                 companyId,
                 vatNumber,
+                defaultVat,
                 address,
                 city,
                 zipCode,
@@ -68,6 +70,7 @@ export async function updateOrganization(formData: FormData) {
                 name: name || "My Organization",
                 companyId,
                 vatNumber,
+                defaultVat,
                 address,
                 city,
                 zipCode,
