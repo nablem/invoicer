@@ -216,7 +216,7 @@ export async function createInvoiceFromQuote(quoteId: string) {
 
     const number = `INV-${Date.now()}`; // Generate invoice number
 
-    await prisma.invoice.create({
+    const invoice = await prisma.invoice.create({
         data: {
             number,
             clientId: quote.clientId,
@@ -239,5 +239,5 @@ export async function createInvoiceFromQuote(quoteId: string) {
     });
 
     revalidatePath("/invoices");
-    redirect("/invoices");
+    redirect(`/invoices/${invoice.id}`);
 }
