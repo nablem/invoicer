@@ -54,14 +54,16 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
         setItems([...items, { title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
     };
 
+
     const updateItem = (index: number, field: keyof FormItem, value: any) => {
         const newItems = [...items];
         const item = { ...newItems[index] };
 
-        if (field === "quantity" || field === "price" || field === "vat") {
+        if (field === "quantity" || field === "price") {
             item[field] = Number(value);
             // Total = Qty * Price * (1 + VAT/100)
-            item.total = item.quantity * item.price * (1 + (item.vat || 0) / 100);
+            item.vat = defaultVat;
+            item.total = item.quantity * item.price * (1 + defaultVat / 100);
         } else if (field === "description" || field === "title") {
             item[field] = value;
         }
@@ -139,9 +141,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                     <div>{dict.quotes.form.description}</div>
                     <div>{dict.quotes.form.qty}</div>
                     <div>{dict.quotes.form.price}</div>
-                    <div>{dict.quotes.form.vat}</div>
-                    <div>{dict.common.total}</div>
-                    <div></div>
+                    <div>{defaultVat > 0 ? dict.common.total_ttc : dict.common.total_ht}</div>
                 </div>
 
                 {items.map((item, index) => (
@@ -194,17 +194,8 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                             style={{ textAlign: 'right' }}
                             disabled={readOnly}
                         />
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            placeholder={dict.quotes.form.vat}
-                            value={item.vat}
-                            onChange={(e) => updateItem(index, "vat", e.target.value)}
-                            className={styles.input}
-                            style={{ textAlign: 'right' }}
-                            disabled={readOnly}
-                        />
+
+                        {/* VAT input removed */}
                         <div style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
                             {item.total.toFixed(2)}
                         </div>
@@ -223,7 +214,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                 )}
 
                 <div className={styles.totalRow}>
-                    <span>{items.some(i => i.vat > 0) ? dict.common.total_ttc : dict.common.total_ht}:</span>
+                    <span>{defaultVat > 0 ? dict.common.total_ttc : dict.common.total_ht}:</span>
                     <span>{items.reduce((sum, item) => sum + item.total, 0).toFixed(2)}</span>
                 </div>
             </div>

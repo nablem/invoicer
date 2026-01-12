@@ -55,7 +55,7 @@
 
 .gridLayout {
     display: grid;
-    grid-template-columns: 3fr 0.7fr 1fr 0.7fr 1fr 40px;
+    grid-template-columns: 2fr 0.5fr 1fr 1fr 32px;
     gap: 1rem;
     align-items: center;
 }
@@ -66,6 +66,23 @@
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--muted-foreground);
+}
+
+.itemsHeader>div:nth-child(2),
+.itemsHeader>div:nth-child(3),
+.itemsHeader>div:nth-child(4) {
+    text-align: right;
+}
+
+/* Hide number input spinners */
+.input[type=number]::-webkit-inner-spin-button,
+.input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input[type=number] {
+    -moz-appearance: textfield;
 }
 
 .itemRow {
