@@ -345,50 +345,52 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
                     />
                 </div>
             </div>
-            <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                    type="checkbox"
-                    id="isRecurring"
-                    name="isRecurring"
-                    checked={isRecurring}
-                    onChange={(e) => handleRecurringChange(e.target.checked)}
+            <div className={styles.row} style={{ alignItems: 'center', marginTop: '1rem', marginBottom: '1rem' }}>
+                <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', width: 'auto' }}>
+                    <input
+                        type="checkbox"
+                        id="isRecurring"
+                        name="isRecurring"
+                        checked={isRecurring}
+                        onChange={(e) => handleRecurringChange(e.target.checked)}
 
-                    style={{ width: 'auto' }}
-                    disabled={readOnly}
-                />
-                <label htmlFor="isRecurring" className={styles.label} style={{ marginBottom: 0 }}>
-                    {dict.invoices.recurring_invoice}
-                </label>
-            </div>
+                        style={{ width: 'auto' }}
+                        disabled={readOnly}
+                    />
+                    <label htmlFor="isRecurring" className={styles.label} style={{ marginBottom: 0 }}>
+                        {dict.invoices.recurring_invoice}
+                    </label>
+                </div>
 
-            <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                    type="checkbox"
-                    id="isRetainer"
-                    name="isRetainer"
-                    checked={isRetainer}
-                    onChange={(e) => handleRetainerChange(e.target.checked)}
-                    style={{ width: 'auto' }}
-                    disabled={readOnly}
-                />
-                <label htmlFor="isRetainer" className={styles.label} style={{ marginBottom: 0 }}>
-                    {dict.invoices.retainer_invoice}
-                </label>
-            </div>
+                <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', width: 'auto' }}>
+                    <input
+                        type="checkbox"
+                        id="isRetainer"
+                        name="isRetainer"
+                        checked={isRetainer}
+                        onChange={(e) => handleRetainerChange(e.target.checked)}
+                        style={{ width: 'auto' }}
+                        disabled={readOnly}
+                    />
+                    <label htmlFor="isRetainer" className={styles.label} style={{ marginBottom: 0 }}>
+                        {dict.invoices.retainer_invoice}
+                    </label>
+                </div>
 
-            <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                    type="checkbox"
-                    id="isBalance"
-                    name="isBalance"
-                    checked={isBalance}
-                    onChange={(e) => handleBalanceChange(e.target.checked)}
-                    style={{ width: 'auto' }}
-                    disabled={readOnly}
-                />
-                <label htmlFor="isBalance" className={styles.label} style={{ marginBottom: 0 }}>
-                    {dict.invoices.balance_invoice}
-                </label>
+                <div className={styles.group} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', width: 'auto' }}>
+                    <input
+                        type="checkbox"
+                        id="isBalance"
+                        name="isBalance"
+                        checked={isBalance}
+                        onChange={(e) => handleBalanceChange(e.target.checked)}
+                        style={{ width: 'auto' }}
+                        disabled={readOnly}
+                    />
+                    <label htmlFor="isBalance" className={styles.label} style={{ marginBottom: 0 }}>
+                        {dict.invoices.balance_invoice}
+                    </label>
+                </div>
             </div>
 
             {isBalance && (
