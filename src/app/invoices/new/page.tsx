@@ -18,8 +18,13 @@ export default async function NewInvoicePage() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.invoices.new_invoice}</h1>
-            <InvoiceForm clients={clients} quotes={quotes} dict={dict} defaultVat={organization?.defaultVat || 0} />
+            <InvoiceForm
+                clients={clients}
+                quotes={quotes}
+                dict={dict}
+                defaultVat={organization?.defaultVat || 0}
+                title={dict.invoices.new_invoice}
+            />
         </div>
     );
 }

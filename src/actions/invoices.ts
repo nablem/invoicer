@@ -84,59 +84,66 @@ export async function createInvoice(formData: FormData) {
     const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
     // Generate Invoice Number inside a transaction to ensure sequence atomicity
-    await prisma.$transaction(async (tx) => {
-        const organization = await tx.organization.findFirst();
+    try {
+        await prisma.$transaction(async (tx) => {
+            const organization = await tx.organization.findFirst();
 
-        let number = `INV-${Date.now()}`; // Fallback
+            let number = `INV-${Date.now()}`; // Fallback
 
-        if (organization) {
-            const { invoicePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+            if (organization) {
+                const { invoicePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
 
-            const yearPart = invoiceIncludeYear ? new Date().getFullYear().toString() : "";
-            const monthPart = invoiceIncludeMonth ? (new Date().getMonth() + 1).toString().padStart(2, '0') : "";
-            const sequencePart = invoiceSequence.toString().padStart(invoiceDigits, '0');
+                const yearPart = invoiceIncludeYear ? new Date().getFullYear().toString() : "";
+                const monthPart = invoiceIncludeMonth ? (new Date().getMonth() + 1).toString().padStart(2, '0') : "";
+                const sequencePart = invoiceSequence.toString().padStart(invoiceDigits, '0');
 
-            number = `${invoicePrefix}${yearPart}${monthPart}${sequencePart}`;
+                number = `${invoicePrefix}${yearPart}${monthPart}${sequencePart}`;
 
-            // Increment sequence
-            await tx.organization.update({
-                where: { id: organization.id },
-                data: { invoiceSequence: { increment: 1 } }
-            });
-        }
+                // Increment sequence
+                await tx.organization.update({
+                    where: { id: organization.id },
+                    data: { invoiceSequence: { increment: 1 } }
+                });
+            }
 
-        await tx.invoice.create({
-            data: {
-                number,
-                clientId,
-                quoteId,
-                date,
-                dueDate,
-                notes,
-                total,
-                isRecurring,
-                recurringInterval: isRecurring ? recurringInterval : undefined,
-                isRetainer,
-                retainerPercentage: isRetainer ? retainerPercentage : undefined,
-                isBalance,
-                retainerInvoiceId: isBalance ? retainerInvoiceId : undefined,
-                retainerDeductionAmount: isBalance ? retainerDeductionAmount : undefined,
-                items: {
-                    create: items.map((item) => ({
-                        title: item.title,
-                        description: item.description,
-                        quantity: item.quantity,
-                        price: item.price,
-                        vat: item.vat,
-                        total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
-                    })),
+            await tx.invoice.create({
+                data: {
+                    number,
+                    clientId,
+                    quoteId,
+                    date,
+                    dueDate,
+                    notes,
+                    total,
+                    isRecurring,
+                    recurringInterval: isRecurring ? recurringInterval : undefined,
+                    isRetainer,
+                    retainerPercentage: isRetainer ? retainerPercentage : undefined,
+                    isBalance,
+                    retainerInvoiceId: isBalance ? retainerInvoiceId : undefined,
+                    retainerDeductionAmount: isBalance ? retainerDeductionAmount : undefined,
+                    items: {
+                        create: items.map((item) => ({
+                            title: item.title,
+                            description: item.description,
+                            quantity: item.quantity,
+                            price: item.price,
+                            vat: item.vat,
+                            total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
+                        })),
+                    },
                 },
-            },
+            });
         });
-    });
 
-    revalidatePath("/invoices");
-    redirect("/invoices");
+        revalidatePath("/invoices");
+        redirect("/invoices");
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return { error: "DUPLICATE_NUMBER" };
+        }
+        throw error;
+    }
 }
 
 export async function updateInvoice(id: string, formData: FormData) {
@@ -225,50 +232,58 @@ export async function createInvoiceFromQuote(quoteId: string) {
 
     if (!quote) throw new Error("Quote not found");
 
-    // Generate invoice number securely
-    const invoice = await prisma.$transaction(async (tx) => {
-        const organization = await tx.organization.findFirst();
+    try {
+        // Generate invoice number securely
+        const invoice = await prisma.$transaction(async (tx) => {
+            const organization = await tx.organization.findFirst();
 
-        let number = `INV-${Date.now()}`;
+            let number = `INV-${Date.now()}`;
 
-        if (organization) {
-            const { invoicePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+            if (organization) {
+                const { invoicePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
 
-            const yearPart = invoiceIncludeYear ? new Date().getFullYear().toString() : "";
-            const monthPart = invoiceIncludeMonth ? (new Date().getMonth() + 1).toString().padStart(2, '0') : "";
-            const sequencePart = invoiceSequence.toString().padStart(invoiceDigits, '0');
+                const yearPart = invoiceIncludeYear ? new Date().getFullYear().toString() : "";
+                const monthPart = invoiceIncludeMonth ? (new Date().getMonth() + 1).toString().padStart(2, '0') : "";
+                const sequencePart = invoiceSequence.toString().padStart(invoiceDigits, '0');
 
-            number = `${invoicePrefix}${yearPart}${monthPart}${sequencePart}`;
+                number = `${invoicePrefix}${yearPart}${monthPart}${sequencePart}`;
 
-            await tx.organization.update({
-                where: { id: organization.id },
-                data: { invoiceSequence: { increment: 1 } }
-            });
-        }
-
-        return await tx.invoice.create({
-            data: {
-                number,
-                clientId: quote.clientId,
-                quoteId: quote.id,
-                date: new Date(),
-                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 30 days
-                notes: quote.notes,
-                total: quote.total,
-                items: {
-                    create: quote.items.map(item => ({
-                        title: (item as any).title || null,
-                        description: item.description,
-                        quantity: item.quantity,
-                        price: item.price,
-                        vat: (item as any).vat || 0,
-                        total: item.total
-                    }))
-                }
+                await tx.organization.update({
+                    where: { id: organization.id },
+                    data: { invoiceSequence: { increment: 1 } }
+                });
             }
-        });
-    });
 
-    revalidatePath("/invoices");
-    redirect(`/invoices/${invoice.id}`);
+            return await tx.invoice.create({
+                data: {
+                    number,
+                    clientId: quote.clientId,
+                    quoteId: quote.id,
+                    date: new Date(),
+                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 30 days
+                    notes: quote.notes,
+                    total: quote.total,
+                    items: {
+                        create: quote.items.map(item => ({
+                            title: (item as any).title || null,
+                            description: item.description,
+                            quantity: item.quantity,
+                            price: item.price,
+                            vat: (item as any).vat || 0,
+                            total: item.total
+                        }))
+                    }
+                }
+            });
+        });
+
+        revalidatePath("/invoices");
+        redirect(`/invoices/${invoice.id}`);
+
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return { error: "DUPLICATE_NUMBER" };
+        }
+        throw error;
+    }
 }

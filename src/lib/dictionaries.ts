@@ -122,7 +122,8 @@ export const fr = {
         validation: {
             required_field: "Veuillez remplir ce champ",
             quote_required: "Veuillez sélectionner un devis",
-            retainer_required: "Veuillez sélectionner un acompte"
+            retainer_required: "Veuillez sélectionner un acompte",
+            duplicate_number_error: "Ce numéro de facture existe déjà"
         },
         mark_as_sent: "Marquer comme Envoyée",
         mark_as_paid: "Marquer comme Payée",
@@ -310,7 +311,8 @@ export const en: Dictionary = {
         validation: {
             required_field: "Please fill this field",
             quote_required: "Please select a quote",
-            retainer_required: "Please select a retainer invoice"
+            retainer_required: "Please select a retainer invoice",
+            duplicate_number_error: "This invoice number already exists"
         },
         status: {
             DRAFT: "Draft",

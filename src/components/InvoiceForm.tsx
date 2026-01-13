@@ -45,9 +45,10 @@ interface InvoiceFormProps {
     dict: Dictionary;
     readOnly?: boolean;
     defaultVat: number;
+    title?: string;
 }
 
-export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat }: InvoiceFormProps) {
+export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat, title }: InvoiceFormProps) {
     const isEditing = !!invoice;
     const action = isEditing ? updateInvoice.bind(null, invoice.id) : createInvoice;
 
@@ -70,6 +71,11 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
     const [retainerDeductionAmount, setRetainerDeductionAmount] = useState<number>(invoice?.retainerDeductionAmount || 0);
     const [currentRetainerNumber, setCurrentRetainerNumber] = useState<string | undefined>(retainerInvoiceNumber);
 
+    // ... (keep generic handlers) ...
+    // Note: I will replace the top section to inject state, and handleSubmit
+    // But since I can't easily replace just "handlers", I will continue with replacement.
+
+    // START handlers replacement
     const handleQuoteChange = async (val: string | null) => {
         const newQuoteId = val || undefined;
         setSelectedQuoteId(newQuoteId);
@@ -92,7 +98,7 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
             }
         }
     };
-
+    // ... keep explicit ...
     const updateRetainerItem = (quoteTotal: number, percentage: number, quoteNumber: string) => {
         const amount = quoteTotal * (percentage / 100);
         setItems([{
@@ -170,9 +176,6 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
             setIsRetainer(false);
             setIsBalance(false);
             setRetainerDeductionAmount(0);
-            // If we're switching from Retainer mode to Recurring, reset items to a default editable item if we're creating a new invoice,
-            // or if the current items look like a generated retainer item (single item, read only context effectively).
-            // Simplest safe approach: If creating new, reset. If editing, keep as is (user might want to keep data).
             if (!invoice && (isRetainer || isBalance)) {
                 setItems([{ title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
             }
@@ -240,6 +243,7 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
     const [clientError, setClientError] = useState(false);
     const [quoteError, setQuoteError] = useState(false);
     const [retainerError, setRetainerError] = useState(false);
+    const [duplicateError, setDuplicateError] = useState(false);
 
     const handleSubmit = async (formData: FormData) => {
         let hasError = false;
@@ -266,15 +270,17 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
         if (hasError) return;
 
         try {
-            await action(formData);
-            setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
-        } catch (e) {
+            const result = await action(formData);
+            if (result && result.error === "DUPLICATE_NUMBER") {
+                setDuplicateError(true);
+                setTimeout(() => setDuplicateError(false), 3000);
+            } else {
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+            }
+        } catch (e: any) {
             console.error(e);
-            // Optional: generic error toast for actual server errors could remain, 
-            // but user asked for specific field UI. 
-            // We'll leave console log for now as "elegant" usually means UI feedback.
-            // If server throws, we might still want a generic fallback, but sticking to request.
+            // Fallback for unexpected errors
         }
     };
 
@@ -283,6 +289,16 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
 
     return (
         <form action={handleSubmit} className={styles.form}>
+            {title && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>{title}</h1>
+                    {duplicateError && (
+                        <span style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '0.875rem' }}>
+                            {dict.invoices.validation.duplicate_number_error}
+                        </span>
+                    )}
+                </div>
+            )}
             <input type="hidden" name="retainerDeductionAmount" value={retainerDeductionAmount} />
             <div className={styles.row}>
                 <div className={styles.group}>
