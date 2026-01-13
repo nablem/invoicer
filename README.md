@@ -1,4 +1,4 @@
-# Invoicing & Billing Platform
+# Invoicing Platform
 
 A modern, self-hostable invoicing application built with Next.js, Prisma, and TypeScript. This platform helps freelancers and small businesses manage clients, send quotes, and issue invoices with ease.
 
@@ -39,7 +39,7 @@ Follow these instructions to get the project running on your local machine for d
 
 3.  **Set Up Environment Variables**:
     Create a `.env` file in the root of the project. This file will store your database connection string.
-    ```
+    ```env
     DATABASE_URL="file:./prisma/dev.db"
     ```
 
@@ -70,7 +70,10 @@ Follow these instructions to get the project running on your local machine for d
     ```
 
 3.  **Set Up Environment Variables**:
-    Create a `.env` file for your production configuration. You should use a production-ready database (e.g., PostgreSQL, MySQL) instead of the SQLite file.
+    Create a `.env` file for your production configuration.
+    ```env
+    DATABASE_URL="file:./prisma/dev.db"
+    ```
 
 4.  **Run Database Migrations**:
     ```bash
