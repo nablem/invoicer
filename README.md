@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Invoicing & Billing Platform
+
+A modern, self-hostable invoicing application built with Next.js, Prisma, and TypeScript. This platform helps freelancers and small businesses manage clients, send quotes, and issue invoices with ease.
+
+## Key Features
+
+-   **Client Management**: Maintain a database of your clients with all necessary contact and billing information.
+-   **Quotes & Invoices**: Create and manage professional quotes and invoices.
+-   **Custom Invoice Numbering**: Set up advanced invoice sequencing, including monthly and yearly resets.
+-   **PDF Generation**: Automatically generate PDF documents for quotes and invoices using Gotenberg.
+-   **Recurring Invoices**: Set up invoices to be generated automatically on a recurring schedule.
+-   **Retainer & Balance Invoicing**: Easily manage retainer-based projects with initial retainer invoices and final balance invoices.
+-   **Quote-to-Invoice Conversion**: Convert an accepted quote into an invoice with a single click.
+-   **Email Integration**: Send invoices and quotes directly to clients from the application, with an integrated email testing tool (MailDev).
+-   **Multi-Language Support**: The UI supports multiple languages (currently English and French).
+-   **DocuSeal Integration (Optional)**: Seamlessly integrate with DocuSeal for e-signing of quotes and invoices.
 
 ## Getting Started
 
-First, run the development server:
+Follow these instructions to get the project running on your local machine for development and testing purposes.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-   [Node.js](https://nodejs.org/) (v20 or later)
+-   [Docker](https://www.docker.com/products/docker-desktop/) and Docker Compose
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Development Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  **Start Background Services**:
+    This application requires Gotenberg for PDF generation and MailDev for email testing. Start them using Docker Compose:
+    ```bash
+    docker-compose up -d
+    ```
 
-## Learn More
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+3.  **Set Up Environment Variables**:
+    Create a `.env` file in the root of the project. This file will store your database connection string.
+    ```
+    DATABASE_URL="file:./prisma/dev.db"
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4.  **Run Database Migrations**:
+    Apply the database schema using Prisma Migrate.
+    ```bash
+    npx prisma migrate dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5.  **Run the Development Server**:
+    Start the Next.js application.
+    ```bash
+    npm run dev
+    ```
+    The application will be available at [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+### Production Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  **Start Background Services**:
+    Just like in development, the background services are required.
+    ```bash
+    docker-compose up -d
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+
+3.  **Set Up Environment Variables**:
+    Create a `.env` file for your production configuration. You should use a production-ready database (e.g., PostgreSQL, MySQL) instead of the SQLite file.
+
+4.  **Run Database Migrations**:
+    ```bash
+    npx prisma migrate deploy
+    ```
+
+5.  **Build and Start the Application**:
+    Build the application for production and start the server.
+    ```bash
+    npm run build
+    npm run start
+    ```
