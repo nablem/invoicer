@@ -61,32 +61,55 @@ export async function createQuote(formData: FormData) {
 
     const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
-    // Generate a simple quote number (e.g. Q-TIMESTAMP)
-    const number = `Q-${Date.now()}`;
+    try {
+        await prisma.$transaction(async (tx) => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const prefix = `D${year}${month}`;
 
-    await prisma.quote.create({
-        data: {
-            number,
-            clientId,
-            date,
-            dueDate,
-            notes,
-            total,
-            items: {
-                create: items.map((item) => ({
-                    title: item.title,
-                    description: item.description,
-                    quantity: item.quantity,
-                    price: item.price,
-                    vat: item.vat,
-                    total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
-                })),
-            },
-        },
-    });
+            const lastQuote = await tx.quote.findFirst({
+                where: { number: { startsWith: prefix } },
+                orderBy: { number: 'desc' },
+            });
 
-    revalidatePath("/quotes");
-    redirect("/quotes");
+            let nextSequence = 11;
+            if (lastQuote) {
+                const lastSequence = parseInt(lastQuote.number.substring(7), 10);
+                nextSequence = lastSequence + 1;
+            }
+
+            const number = `${prefix}${nextSequence}`;
+
+            await tx.quote.create({
+                data: {
+                    number,
+                    clientId,
+                    date,
+                    dueDate,
+                    notes,
+                    total,
+                    items: {
+                        create: items.map((item) => ({
+                            title: item.title,
+                            description: item.description,
+                            quantity: item.quantity,
+                            price: item.price,
+                            vat: item.vat,
+                            total: item.quantity * item.price * (1 + (item.vat || 0) / 100),
+                        })),
+                    },
+                },
+            });
+        });
+
+        revalidatePath("/quotes");
+        redirect("/quotes");
+    } catch (error) {
+        // Handle potential errors, e.g., unique constraint violation if something goes wrong
+        console.error("Failed to create quote:", error);
+        // You might want to return an error to the UI
+    }
 }
 
 export async function updateQuote(id: string, formData: FormData) {
