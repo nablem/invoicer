@@ -61,8 +61,9 @@ export async function createQuote(formData: FormData) {
 
     const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
 
+    let quote;
     try {
-        await prisma.$transaction(async (tx) => {
+        quote = await prisma.$transaction(async (tx) => {
             const now = new Date();
             const year = now.getFullYear();
             const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -81,7 +82,7 @@ export async function createQuote(formData: FormData) {
 
             const number = `${prefix}${nextSequence}`;
 
-            await tx.quote.create({
+            return await tx.quote.create({
                 data: {
                     number,
                     clientId,
@@ -102,14 +103,15 @@ export async function createQuote(formData: FormData) {
                 },
             });
         });
-
-        revalidatePath("/quotes");
-        redirect("/quotes");
     } catch (error) {
         // Handle potential errors, e.g., unique constraint violation if something goes wrong
         console.error("Failed to create quote:", error);
         // You might want to return an error to the UI
+        return { error: "Failed to create quote." };
     }
+
+    revalidatePath("/quotes");
+    redirect(`/quotes/${quote.id}`);
 }
 
 export async function updateQuote(id: string, formData: FormData) {
