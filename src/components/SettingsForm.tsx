@@ -15,6 +15,30 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
     const [previewUrl, setPreviewUrl] = useState<string | null>(organization?.logoUrl || null);
     const [logoFile, setLogoFile] = useState<Blob | null>(null);
 
+    // Numbering Settings State
+    const [includePrefix, setIncludePrefix] = useState(organization?.invoiceIncludePrefix ?? true);
+    const [includeYear, setIncludeYear] = useState(organization?.invoiceIncludeYear ?? false);
+    const [includeMonth, setIncludeMonth] = useState(organization?.invoiceIncludeMonth ?? false);
+    const [prefix, setPrefix] = useState(organization?.invoicePrefix ?? "INV-");
+    const [sequence, setSequence] = useState(organization?.invoiceSequence ?? 1);
+    const [digits, setDigits] = useState(organization?.invoiceDigits ?? 3);
+
+    const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const checked = e.target.checked;
+        setIncludeMonth(checked);
+        if (checked) {
+            setIncludeYear(true);
+        }
+    };
+
+    const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const checked = e.target.checked;
+        setIncludeYear(checked);
+        if (!checked) {
+            setIncludeMonth(false); // Optional: Uncheck month if year is unchecked? User didn't specify, but makes sense.
+        }
+    };
+
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -141,6 +165,158 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
                 <div className={styles.group}>
                     <label className={styles.label}>{dict.settings.form.website}</label>
                     <input name="website" defaultValue={organization?.website} className={styles.input} />
+                </div>
+
+                {/* Numbering Section */}
+                <div className={styles.section} style={{ paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{dict.settings.form.numbering.title}</h3>
+
+                    <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                name="invoiceIncludePrefix"
+                                checked={includePrefix}
+                                onChange={(e) => setIncludePrefix(e.target.checked)}
+                            />
+                            {dict.settings.form.numbering.prefix}
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                name="invoiceIncludeYear"
+                                checked={includeYear}
+                                onChange={handleYearChange}
+                            />
+                            {dict.settings.form.numbering.year}
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                name="invoiceIncludeMonth"
+                                checked={includeMonth}
+                                onChange={handleMonthChange}
+                            />
+                            {dict.settings.form.numbering.month}
+                        </label>
+                    </div>
+
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0',
+                        padding: '1.5rem',
+                        background: '#f9fafb',
+                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        flexWrap: 'wrap'
+                    }}>
+                        {includePrefix && (
+                            <input
+                                name="invoicePrefix"
+                                value={prefix}
+                                onChange={e => setPrefix(e.target.value)}
+                                className={styles.input}
+                                style={{
+                                    width: '100px',
+                                    textAlign: 'center',
+                                    marginRight: '0.5rem',
+                                    fontWeight: 'bold'
+                                }}
+                                placeholder="INV-"
+                            />
+                        )}
+
+                        {includeYear && (
+                            <div style={{
+                                padding: '0.6rem 1rem',
+                                background: '#e5e7eb',
+                                borderRadius: '4px',
+                                color: '#6b7280',
+                                fontWeight: 'bold',
+                                marginRight: '0.25rem',
+                                fontSize: '0.9rem'
+                            }}>
+                                {dict.settings.form.numbering.year_label}
+                            </div>
+                        )}
+
+                        {includeMonth && (
+                            <div style={{
+                                padding: '0.6rem 1rem',
+                                background: '#e5e7eb',
+                                borderRadius: '4px',
+                                color: '#6b7280',
+                                fontWeight: 'bold',
+                                marginRight: '0.5rem',
+                                fontSize: '0.9rem'
+                            }}>
+                                {dict.settings.form.numbering.month_label}
+                            </div>
+                        )}
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <div style={{ position: 'relative' }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-20px',
+                                    left: '0',
+                                    fontSize: '0.7rem',
+                                    color: '#6b7280'
+                                }}>{dict.settings.form.numbering.sequence}</span>
+                                <input
+                                    type="number"
+                                    name="invoiceSequence"
+                                    value={sequence}
+                                    onChange={e => setSequence(Math.max(1, parseInt(e.target.value) || 1))}
+                                    className={styles.input}
+                                    style={{
+                                        width: '100px',
+                                        textAlign: 'center',
+                                        background: '#e5e7eb',
+                                        fontWeight: 'bold',
+                                        color: '#374151'
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '1rem' }}>
+                            <div style={{ position: 'relative' }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-20px',
+                                    left: '0',
+                                    fontSize: '0.7rem',
+                                    color: '#6b7280',
+                                    whiteSpace: 'nowrap'
+                                }}>{dict.settings.form.numbering.digits}</span>
+                                <input
+                                    type="number"
+                                    name="invoiceDigits"
+                                    value={digits}
+                                    onChange={e => setDigits(Math.max(0, parseInt(e.target.value) || 0))}
+                                    className={styles.input}
+                                    style={{
+                                        width: '80px',
+                                        textAlign: 'center',
+                                        background: 'white'
+                                    }}
+                                    min="0"
+                                    max="10"
+                                />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                        {dict.settings.form.numbering.preview} <strong>
+                            {includePrefix ? prefix : ''}
+                            {includeYear ? new Date().getFullYear() : ''}
+                            {includeMonth ? String(new Date().getMonth() + 1).padStart(2, '0') : ''}
+                            {String(sequence).padStart(digits, '0')}
+                        </strong>
+                    </div>
                 </div>
 
                 <div className={styles.group}>

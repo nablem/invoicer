@@ -168,7 +168,18 @@ export const fr = {
             website: "Site Web",
             logo: "Logo (redimensionné 240x240)",
             submit: "Mettre à jour",
-            saved: "Paramètres enregistrés !"
+            saved: "Paramètres enregistrés !",
+            numbering: {
+                title: "Numérotation des factures",
+                prefix: "Préfixe",
+                year: "Année",
+                month: "Mois",
+                sequence: "Séquence",
+                digits: "Chiffres (min)",
+                preview: "Aperçu :",
+                year_label: "ANNÉE",
+                month_label: "MOIS"
+            }
         }
     }
 };
@@ -342,7 +353,18 @@ export const en: Dictionary = {
             website: "Website",
             logo: "Logo (resized 240x240)",
             submit: "Update",
-            saved: "Settings saved!"
+            saved: "Settings saved!",
+            numbering: {
+                title: "Invoice Numbering",
+                prefix: "Prefix",
+                year: "Year",
+                month: "Month",
+                sequence: "Sequence",
+                digits: "Digits (min)",
+                preview: "Preview:",
+                year_label: "YEAR",
+                month_label: "MONTH"
+            }
         }
     }
 };

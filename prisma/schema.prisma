@@ -119,6 +119,15 @@ model Organization {
   logoUrl     String?
   language    String   @default("en") // "en" or "fr"
   defaultVat  Float    @default(0)
+  
+  // Invoice Numbering Settings
+  invoicePrefix       String   @default("INV-")
+  invoiceIncludePrefix Boolean @default(true)
+  invoiceIncludeYear  Boolean  @default(false)
+  invoiceIncludeMonth Boolean  @default(false)
+  invoiceSequence     Int      @default(1)
+  invoiceDigits       Int      @default(3) // Default to 001, 002...
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

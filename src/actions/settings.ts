@@ -62,6 +62,12 @@ export async function updateOrganization(formData: FormData) {
                 website,
                 language,
                 ...(logoUrl && { logoUrl }),
+                invoicePrefix: formData.get("invoicePrefix") as string,
+                invoiceIncludePrefix: formData.get("invoiceIncludePrefix") === "on",
+                invoiceIncludeYear: formData.get("invoiceIncludeYear") === "on",
+                invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
+                invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
+                invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
             }
         });
     } else {
@@ -80,6 +86,12 @@ export async function updateOrganization(formData: FormData) {
                 website,
                 language: language || "en",
                 logoUrl,
+                invoicePrefix: formData.get("invoicePrefix") as string,
+                invoiceIncludePrefix: formData.get("invoiceIncludePrefix") === "on",
+                invoiceIncludeYear: formData.get("invoiceIncludeYear") === "on",
+                invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
+                invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
+                invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
             }
         });
     }
