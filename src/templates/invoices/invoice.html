@@ -68,15 +68,18 @@
 
         .meta-grid {
             margin-bottom: 20px;
-        }
-
-        .meta-item {
-            margin-bottom: 3px;
+            display: grid;
+            grid-template-columns: max-content max-content;
+            column-gap: 15px;
+            row-gap: 4px;
+            justify-content: end;
+            /* Align the grid to the right */
+            text-align: right;
+            /* Reset text align for grid items */
         }
 
         .meta-label {
             color: #666;
-            margin-right: 8px;
             font-size: 13px;
         }
 
@@ -263,19 +266,15 @@
 
         <div class="header-right">
             <div class="meta-grid">
-                <div class="meta-item">
-                    <span class="meta-label">Facture N°</span>
-                    <span class="meta-value">{{number}}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Date</span>
-                    <span class="meta-value">{{date}}</span>
-                </div>
+                <div class="meta-label">Facture N°</div>
+                <div class="meta-value">{{number}}</div>
+
+                <div class="meta-label">Date</div>
+                <div class="meta-value">{{date}}</div>
+
                 {{#if dueDate}}
-                <div class="meta-item">
-                    <span class="meta-label">Échéance</span>
-                    <span class="meta-value">{{dueDate}}</span>
-                </div>
+                <div class="meta-label">Échéance</div>
+                <div class="meta-value">{{dueDate}}</div>
                 {{/if}}
             </div>
 

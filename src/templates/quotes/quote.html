@@ -66,15 +66,18 @@
 
         .meta-grid {
             margin-bottom: 20px;
-        }
-
-        .meta-item {
-            margin-bottom: 3px;
+            display: grid;
+            grid-template-columns: max-content max-content;
+            column-gap: 15px;
+            row-gap: 4px;
+            justify-content: end;
+            /* Align the grid to the right */
+            text-align: right;
+            /* Reset text align for grid items */
         }
 
         .meta-label {
             color: #666;
-            margin-right: 8px;
             font-size: 13px;
         }
 
@@ -233,19 +236,15 @@
 
         <div class="header-right">
             <div class="meta-grid">
-                <div class="meta-item">
-                    <span class="meta-label">Devis N°</span>
-                    <span class="meta-value">{{number}}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">Date</span>
-                    <span class="meta-value">{{date}}</span>
-                </div>
+                <div class="meta-label">Devis N°</div>
+                <div class="meta-value">{{number}}</div>
+
+                <div class="meta-label">Date</div>
+                <div class="meta-value">{{date}}</div>
+
                 {{#if dueDate}}
-                <div class="meta-item">
-                    <span class="meta-label">Validité</span>
-                    <span class="meta-value">{{dueDate}}</span>
-                </div>
+                <div class="meta-label">Validité</div>
+                <div class="meta-value">{{dueDate}}</div>
                 {{/if}}
             </div>
 
@@ -296,32 +295,40 @@
             <tr class="grand-total">
                 <td class="total-label">
                     Total HT
+                    <div class="note-subtext">TVA: 0,00 € — Autoliquidation</div>
                 </td>
                 <td class="total-value">{{total}}€</td>
             </tr>
         </table>
     </div>
+    <div class="section-title">Remarques</div>
+    <div class="terms-content">
+        <p>
+            TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
+            Directive 2006/112/CE).<br />
+            <i>Export of Services from Georgia — The customer is liable for VAT under the reverse charge
+                mechanism.</i>
+        </p>
+    </div>
 
-    <div class="footer-columns">
-        <!-- Notes Section -->
-        {{#if notes}}
-        <div class="footer-column">
-            <div class="section-title">Notes</div>
-            <div class="terms-content">
-                <p>{{notes}}</p>
-            </div>
+    <!-- Notes Section -->
+    {{#if notes}}
+    <div class="footer-column">
+        <div class="section-title">Notes</div>
+        <div class="terms-content">
+            <p>{{notes}}</p>
         </div>
-        {{/if}}
+    </div>
+    {{/if}}
 
-        <!-- Signature Section Example (Optional, good for quotes) -->
-        <!-- 
+    <!-- Signature Section Example (Optional, good for quotes) -->
+    <!-- 
         <div class="footer-column">
              <div class="section-title">Bon pour accord</div>
              <div style="height: 80px; border: 1px solid #e5e5e5; margin-top: 10px;"></div>
              <div class="note-subtext" style="margin-top: 5px;">Date et signature</div>
         </div> 
         -->
-    </div>
 </body>
 
 </html>
