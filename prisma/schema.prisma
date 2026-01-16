@@ -122,6 +122,12 @@ model Organization {
   defaultVat  Float    @default(0)
   decimalSeparator String @default(",") // "," or "."
   
+  // Bank Details
+  bankName        String?
+  bankBeneficiary String?
+  iban            String?
+  bic             String?
+  
   // Invoice Numbering Settings
   invoicePrefix       String   @default("INV-")
   invoiceIncludePrefix Boolean @default(true)

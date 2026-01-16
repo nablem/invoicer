@@ -201,6 +201,31 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
                     <input name="website" defaultValue={organization?.website} className={styles.input} />
                 </div>
 
+                {/* Bank Details Section */}
+                <div className={styles.section} style={{ paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem' }}>{dict.settings.form.bank.title}</h3>
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.bank.beneficiary}</label>
+                            <input name="bankBeneficiary" defaultValue={organization?.bankBeneficiary} className={styles.input} />
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.bank.bank_name}</label>
+                            <input name="bankName" defaultValue={organization?.bankName} className={styles.input} />
+                        </div>
+                    </div>
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.bank.iban}</label>
+                            <input name="iban" defaultValue={organization?.iban} className={styles.input} />
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.bank.bic}</label>
+                            <input name="bic" defaultValue={organization?.bic} className={styles.input} />
+                        </div>
+                    </div>
+                </div>
+
                 {/* Numbering Section */}
                 <div className={styles.section} style={{ paddingTop: '1rem', borderTop: '1px solid #eee' }}>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{dict.settings.form.numbering.title}</h3>

@@ -170,8 +170,6 @@ export const fr = {
             phone: "Téléphone",
             website: "Site Web",
             logo: "Logo (redimensionné 240x240)",
-            submit: "Mettre à jour",
-            saved: "Paramètres enregistrés !",
             numbering: {
                 title: "Numérotation des factures",
                 prefix: "Préfixe",
@@ -182,10 +180,20 @@ export const fr = {
                 preview: "Aperçu :",
                 year_label: "ANNÉE",
                 month_label: "MOIS"
-            }
+            },
+            bank: {
+                title: "Coordonnées Bancaires",
+                beneficiary: "Bénéficiaire",
+                bank_name: "Nom de la banque",
+                iban: "IBAN",
+                bic: "BIC/SWIFT"
+            },
+            submit: "Mettre à jour",
+            saved: "Paramètres enregistrés !"
         }
     }
 };
+
 
 export const en: Dictionary = {
     common: {
@@ -370,6 +378,13 @@ export const en: Dictionary = {
                 preview: "Preview:",
                 year_label: "YEAR",
                 month_label: "MONTH"
+            },
+            bank: {
+                title: "Bank Details",
+                beneficiary: "Beneficiary",
+                bank_name: "Bank Name",
+                iban: "IBAN",
+                bic: "BIC/SWIFT"
             }
         }
     }
