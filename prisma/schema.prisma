@@ -136,6 +136,12 @@ model Organization {
   invoiceSequence     Int      @default(1)
   invoiceDigits       Int      @default(3) // Default to 001, 002...
 
+  // Template Settings
+  invoiceTemplate       String   @default("invoice") // "invoice" or "invoice_squeeze"
+  quoteTemplate         String   @default("quote")   // "quote" or "quote_squeeze"
+  invoiceEmailTemplate  String   @default("standard") // "standard" or "minimal"
+  quoteEmailTemplate    String   @default("standard") // "standard" or "minimal"
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

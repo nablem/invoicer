@@ -184,9 +184,21 @@ export const fr = {
             bank: {
                 title: "Coordonnées Bancaires",
                 beneficiary: "Bénéficiaire",
-                bank_name: "Nom de la banque",
+                bank_name: "Nom de la Banque",
                 iban: "IBAN",
                 bic: "BIC/SWIFT"
+            },
+            templates: {
+                title: "Modèles / Templates",
+                invoice_pdf: "Modèle de facture (PDF)",
+                quote_pdf: "Modèle de devis (PDF)",
+                invoice_email: "Modèle d'email (Facture)",
+                quote_email: "Modèle d'email (Devis)",
+                options: {
+                    standard: "Standard",
+                    compact: "Compact (Squeeze)",
+                    minimal: "Minimal"
+                }
             },
             submit: "Mettre à jour",
             saved: "Paramètres enregistrés !"
@@ -385,6 +397,18 @@ export const en: Dictionary = {
                 bank_name: "Bank Name",
                 iban: "IBAN",
                 bic: "BIC/SWIFT"
+            },
+            templates: {
+                title: "Templates",
+                invoice_pdf: "Invoice Template (PDF)",
+                quote_pdf: "Quote Template (PDF)",
+                invoice_email: "Invoice Email Template",
+                quote_email: "Quote Email Template",
+                options: {
+                    standard: "Standard",
+                    compact: "Compact (Squeeze)",
+                    minimal: "Minimal"
+                }
             }
         }
     }

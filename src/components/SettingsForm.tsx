@@ -9,9 +9,15 @@ interface SettingsFormProps {
     organization: any;
     dict: Dictionary;
     defaultLanguage: "fr" | "en";
+    availableTemplates: {
+        invoice: string[];
+        quote: string[];
+        emailInvoice: string[];
+        emailQuote: string[];
+    };
 }
 
-export default function SettingsForm({ organization, dict, defaultLanguage }: SettingsFormProps) {
+export default function SettingsForm({ organization, dict, defaultLanguage, availableTemplates }: SettingsFormProps) {
     const [previewUrl, setPreviewUrl] = useState<string | null>(organization?.logoUrl || null);
     const [logoFile, setLogoFile] = useState<Blob | null>(null);
 
@@ -222,6 +228,47 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
                         <div className={styles.group}>
                             <label className={styles.label}>{dict.settings.form.bank.bic}</label>
                             <input name="bic" defaultValue={organization?.bic} className={styles.input} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Templates Section */}
+                <div className={styles.section} style={{ paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '1rem' }}>{dict.settings.form.templates.title}</h3>
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.templates.invoice_pdf}</label>
+                            <select name="invoiceTemplate" defaultValue={organization?.invoiceTemplate || "invoice"} className={styles.input}>
+                                {availableTemplates.invoice.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.templates.quote_pdf}</label>
+                            <select name="quoteTemplate" defaultValue={organization?.quoteTemplate || "quote"} className={styles.input}>
+                                {availableTemplates.quote.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.templates.invoice_email}</label>
+                            <select name="invoiceEmailTemplate" defaultValue={organization?.invoiceEmailTemplate || "standard"} className={styles.input}>
+                                {availableTemplates.emailInvoice.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.group}>
+                            <label className={styles.label}>{dict.settings.form.templates.quote_email}</label>
+                            <select name="quoteEmailTemplate" defaultValue={organization?.quoteEmailTemplate || "standard"} className={styles.input}>
+                                {availableTemplates.emailQuote.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>

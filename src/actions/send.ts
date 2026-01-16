@@ -5,12 +5,32 @@ import { generatePdf } from "@/lib/pdf";
 import { sendEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
 
+import fs from "fs/promises";
+import path from "path";
+import Handlebars from "handlebars";
+
+async function loadEmailTemplate(type: "invoices" | "quotes", templateName: string, data: any) {
+    try {
+        const filePath = path.join(process.cwd(), "src", "templates", "emails", type, `${templateName}.html`);
+        const content = await fs.readFile(filePath, "utf-8");
+        const template = Handlebars.compile(content);
+        return template(data);
+    } catch (error) {
+        console.error(`Error loading email template ${type}/${templateName}:`, error);
+        return `<p>Please find attached document.</p>`; // Fallback
+    }
+}
+
 export async function sendQuote(quoteId: string) {
     const quote = await prisma.quote.findUnique({
         where: { id: quoteId },
         include: { client: true, items: true },
     });
     if (!quote) throw new Error("Quote not found");
+
+    const organization = await prisma.organization.findFirst();
+    const pdfTemplate = organization?.quoteTemplate || "quote";
+    const emailTemplate = organization?.quoteEmailTemplate || "standard";
 
     // Generate PDF
     const data = {
@@ -19,18 +39,31 @@ export async function sendQuote(quoteId: string) {
         dueDate: quote.dueDate ? new Date(quote.dueDate).toLocaleDateString() : null,
         total: quote.total.toFixed(2),
         items: quote.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+        organization,
     };
-    const pdfBuffer = await generatePdf("quote", data);
+    const pdfBuffer = await generatePdf("quote", data, pdfTemplate);
 
     if (!quote.client.email) {
         throw new Error("Client has no email address");
     }
 
+    // Email Content
+    const subject = `Quote ${quote.number} from ${organization?.name || "FreelanceHub"}`;
+
+    const emailData = {
+        clientName: quote.client.name,
+        quoteNumber: quote.number,
+        organizationName: organization?.name || "FreelanceHub",
+        ...quote
+    };
+
+    const html = await loadEmailTemplate("quotes", emailTemplate, emailData);
+
     // Send Email
     await sendEmail(
         { email: quote.client.email, name: quote.client.name },
-        `Quote ${quote.number} from FreelanceHub`,
-        `<p>Dear ${quote.client.name},</p><p>Please find attached quote ${quote.number}.</p>`,
+        subject,
+        html,
         { filename: `Quote-${quote.number}.pdf`, content: pdfBuffer }
     );
 
@@ -50,6 +83,10 @@ export async function sendInvoice(invoiceId: string) {
     });
     if (!invoice) throw new Error("Invoice not found");
 
+    const organization = await prisma.organization.findFirst();
+    const pdfTemplate = organization?.invoiceTemplate || "invoice";
+    const emailTemplate = organization?.invoiceEmailTemplate || "standard";
+
     // Generate PDF
     const data = {
         ...invoice,
@@ -57,18 +94,31 @@ export async function sendInvoice(invoiceId: string) {
         dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : null,
         total: invoice.total.toFixed(2),
         items: invoice.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+        organization,
     };
-    const pdfBuffer = await generatePdf("invoice", data);
+    const pdfBuffer = await generatePdf("invoice", data, pdfTemplate);
 
     if (!invoice.client.email) {
         throw new Error("Client has no email address");
     }
 
+    // Email Content
+    const subject = `Invoice ${invoice.number} from ${organization?.name || "FreelanceHub"}`;
+
+    const emailData = {
+        clientName: invoice.client.name,
+        invoiceNumber: invoice.number,
+        organizationName: organization?.name || "FreelanceHub",
+        ...invoice
+    };
+
+    const html = await loadEmailTemplate("invoices", emailTemplate, emailData);
+
     // Send Email
     await sendEmail(
         { email: invoice.client.email, name: invoice.client.name },
-        `Invoice ${invoice.number} from FreelanceHub`,
-        `<p>Dear ${invoice.client.name},</p><p>Please find attached invoice ${invoice.number}.</p>`,
+        subject,
+        html,
         { filename: `Invoice-${invoice.number}.pdf`, content: pdfBuffer }
     );
 

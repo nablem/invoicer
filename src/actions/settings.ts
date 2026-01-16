@@ -77,6 +77,11 @@ export async function updateOrganization(formData: FormData) {
                 invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
                 invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
                 invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
+                // Template Settings
+                invoiceTemplate: formData.get("invoiceTemplate") as string,
+                quoteTemplate: formData.get("quoteTemplate") as string,
+                invoiceEmailTemplate: formData.get("invoiceEmailTemplate") as string,
+                quoteEmailTemplate: formData.get("quoteEmailTemplate") as string,
             }
         });
     } else {
@@ -107,6 +112,11 @@ export async function updateOrganization(formData: FormData) {
                 invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
                 invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
                 invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
+                // Template Settings
+                invoiceTemplate: (formData.get("invoiceTemplate") as string) || "invoice",
+                quoteTemplate: (formData.get("quoteTemplate") as string) || "quote",
+                invoiceEmailTemplate: (formData.get("invoiceEmailTemplate") as string) || "standard",
+                quoteEmailTemplate: (formData.get("quoteEmailTemplate") as string) || "standard",
             }
         });
     }

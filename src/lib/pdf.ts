@@ -4,9 +4,11 @@ import Handlebars from "handlebars";
 
 const GOTENBERG_URL = process.env.GOTENBERG_URL || "http://localhost:3001";
 
-export async function generatePdf(templateName: string, data: any): Promise<Buffer> {
+export async function generatePdf(type: "invoice" | "quote", data: any, templateName?: string): Promise<Buffer> {
     // 1. Read template
-    const templatePath = path.join(process.cwd(), "src", "templates", `${templateName}s`, `${templateName}.html`);
+    // Use the provided templateName if available (e.g. "invoice_squeeze"), otherwise default to the type (e.g. "invoice")
+    const actualTemplate = templateName || type;
+    const templatePath = path.join(process.cwd(), "src", "templates", `${type}s`, `${actualTemplate}.html`);
     const templateContent = await fs.readFile(templatePath, "utf-8");
 
     // 2. Compile template
