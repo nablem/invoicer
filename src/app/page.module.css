@@ -75,7 +75,3 @@
 .listItem:last-child {
   border-bottom: none;
 }
-
-.amount {
-  font-weight: 600;
-}

@@ -220,7 +220,7 @@
 
             <div class="org-details">
                 <div><i>Individual Entrepreneur</i></div>
-                {{#if organization.companyId}}<div>GE{{organization.companyId}}</div>{{/if}}
+                {{#if organization.vatNumber}}<div>{{organization.vatNumber}}</div>{{/if}}
                 {{#if organization.address}}<div>{{organization.address}}</div>{{/if}}
                 {{#if organization.city}}
                 <div>{{organization.city}}{{#if organization.zipCode}}, {{organization.zipCode}}{{/if}}{{#if

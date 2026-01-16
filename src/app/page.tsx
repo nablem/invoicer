@@ -25,6 +25,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     };
   }
 
+  const organization = await prisma.organization.findFirst();
+  const currency = organization?.currency || "EUR";
+
   const [
     clientCount,
     quoteCount,
@@ -32,8 +35,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     recentQuotes,
     recentInvoices,
     revenue,
-    pending,
-    organization
+    pending
   ] = await Promise.all([
     prisma.client.count(),
     prisma.quote.count(),
@@ -41,15 +43,17 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     prisma.quote.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { client: true } }),
     prisma.invoice.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { client: true } }),
     prisma.invoice.aggregate({
-      where: { status: "PAID", ...whereDate },
-      _sum: { total: true }
+      where: { status: "PAID", ...whereDate, currency },
+      _sum: { total: true, retainerDeductionAmount: true }
     }),
     prisma.invoice.aggregate({
-      where: { status: { in: ["SENT", "OVERDUE"] }, ...whereDate },
-      _sum: { total: true }
-    }),
-    prisma.organization.findFirst()
+      where: { status: { in: ["SENT", "OVERDUE"] }, ...whereDate, currency },
+      _sum: { total: true, retainerDeductionAmount: true }
+    })
   ]);
+
+  const revenueTotal = (revenue._sum.total || 0) - (revenue._sum.retainerDeductionAmount || 0);
+  const pendingTotal = (pending._sum.total || 0) - (pending._sum.retainerDeductionAmount || 0);
 
   return (
     <div className={styles.container}>
@@ -81,13 +85,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <div className={styles.card} style={{ backgroundColor: "#ecfdf5", borderColor: "#10b981" }}>
             <h3 style={{ color: "#047857" }}>{dict.dashboard.revenue}</h3>
             <p className={styles.number} style={{ color: "#047857" }}>
-              {formatPrice(revenue._sum.total || 0, organization?.currency || "EUR", organization?.decimalSeparator)}
+              {formatPrice(revenueTotal, organization?.currency || "EUR", organization?.decimalSeparator)}
             </p>
           </div>
           <div className={styles.card} style={{ backgroundColor: "#eff6ff", borderColor: "#3b82f6" }}>
             <h3 style={{ color: "#1d4ed8" }}>{dict.dashboard.pending}</h3>
             <p className={styles.number} style={{ color: "#1d4ed8" }}>
-              {formatPrice(pending._sum.total || 0, organization?.currency || "EUR", organization?.decimalSeparator)}
+              {formatPrice(pendingTotal, organization?.currency || "EUR", organization?.decimalSeparator)}
             </p>
           </div>
         </div>
@@ -101,7 +105,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <li key={q.id} className={styles.listItem}>
                 <Link href={`/quotes/${q.id}`} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', color: 'inherit', textDecoration: 'none' }}>
                   <span>{q.number} - {q.client.name}</span>
-                  <span className={styles.amount}>{dict.common.total}: {formatPrice(q.total, q.currency, organization?.decimalSeparator)}</span>
+                  <span className={styles.amount}>{formatPrice(q.total, q.currency, organization?.decimalSeparator)}</span>
                 </Link>
               </li>
             ))}
