@@ -12,7 +12,7 @@
             color: #1a1a1a;
             line-height: 1.4;
             padding: 30px;
-            font-size: 14px;
+            font-size: 15px;
             max-width: 800px;
             margin: 0 auto;
         }
@@ -26,14 +26,14 @@
         }
 
         .grand-total td {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #000;
             vertical-align: top;
         }
 
         .note-subtext {
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
             font-weight: 400;
             margin-top: 4px;
@@ -48,7 +48,7 @@
         }
 
         .logo {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #000;
             text-transform: uppercase;
@@ -57,7 +57,7 @@
         }
 
         .org-details {
-            font-size: 11px;
+            font-size: 12px;
             color: #444;
             line-height: 1.5;
         }
@@ -78,12 +78,12 @@
         .meta-label {
             color: #666;
             margin-right: 8px;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .meta-value {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .client-box {
@@ -92,7 +92,7 @@
 
         .client-label {
             color: #666;
-            font-size: 11px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 6px;
@@ -100,7 +100,7 @@
         }
 
         .client-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             margin-bottom: 4px;
         }
@@ -108,7 +108,7 @@
         .client-details {
             color: #444;
             line-height: 1.5;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         table {
@@ -121,7 +121,7 @@
             text-align: left;
             color: #666;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 12px;
             text-transform: uppercase;
             padding: 8px 0;
             border-bottom: 1px solid #e5e5e5;
@@ -140,7 +140,7 @@
         .item-description {
             color: #444;
             white-space: pre-wrap;
-            font-size: 11px;
+            font-size: 12px;
             margin-top: 2px;
         }
 
@@ -169,7 +169,7 @@
 
         .total-label {
             color: #666;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .total-value {
@@ -178,12 +178,10 @@
         }
 
         .grand-total {
-            font-size: 16px;
-            font-weight: 700;
-            color: #000;
+            /* Handled above */
             border-top: 1px solid #e5e5e5;
-            padding-top: 12px !important;
-            margin-top: 6px;
+            padding-top: 16px !important;
+            margin-top: 8px;
         }
 
         .notes-section {
@@ -193,7 +191,7 @@
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: #000;
             margin-bottom: 6px;
@@ -202,7 +200,7 @@
         }
 
         .section-content {
-            font-size: 11px;
+            font-size: 12px;
             color: #444;
             white-space: pre-wrap;
         }
@@ -212,7 +210,7 @@
         }
 
         .terms-title {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: #000;
             margin-bottom: 4px;
@@ -221,8 +219,8 @@
         }
 
         .terms-content {
-            font-size: 10px;
-            color: #888;
+            font-size: 12px;
+            color: #000;
             line-height: 1.4;
         }
 
@@ -233,7 +231,7 @@
             right: 30px;
             text-align: center;
             color: #999;
-            font-size: 10px;
+            font-size: 11px;
             border-top: 1px solid #eee;
             padding-top: 15px;
         }
@@ -249,6 +247,7 @@
             {{/if}}
 
             <div class="org-details">
+                <div><i>Individual Entrepreneur</i></div>
                 {{#if organization.companyId}}<div>GE{{organization.companyId}}</div>{{/if}}
                 {{#if organization.address}}<div>{{organization.address}}</div>{{/if}}
                 {{#if organization.city}}
@@ -312,7 +311,7 @@
                     <div class="item-title">Acompte sur devis {{quote.number}}</div>
                     <div class="item-description">Acompte de {{retainerPercentage}}%</div>
                 </td>
-                <td class="col-right">1</td>
+                <td class="col-right"></td>
                 <td class="col-right">{{total}}€</td>
                 <td class="col-right">{{total}}€</td>
             </tr>
@@ -360,7 +359,7 @@
 
     <!-- Terms & Conditions Section (Static Placeholder or dynamic if supported later) -->
     <div class="terms-section">
-        <div class="section-title">Termes & Conditions</div>
+        <div class="section-title">Remarques</div>
         <div class="terms-content">
             <p>
                 TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
@@ -369,10 +368,6 @@
                     mechanism.</i>
             </p>
         </div>
-    </div>
-
-    <div class="footer">
-        Merci de votre confiance.
     </div>
 </body>
 
