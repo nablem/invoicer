@@ -120,6 +120,7 @@ model Organization {
   language    String   @default("en") // "en" or "fr"
   currency    String   @default("EUR")
   defaultVat  Float    @default(0)
+  decimalSeparator String @default(",") // "," or "."
   
   // Invoice Numbering Settings
   invoicePrefix       String   @default("INV-")

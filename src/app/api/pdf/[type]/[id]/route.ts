@@ -9,11 +9,27 @@ interface Props {
     }>;
 }
 
+// Helper to format currency with configurable separator
+function formatCurrency(amount: number, decimalSeparator: string = ','): string {
+    const isCommaDecimal = decimalSeparator === ',';
+    const thousandSeparator = isCommaDecimal ? ' ' : ',';
+    const decimal = isCommaDecimal ? ',' : '.';
+
+    return amount.toFixed(2).replace('.', decimal).replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
+}
+
 export async function GET(req: NextRequest, { params }: Props) {
     const { type, id } = await params;
 
     if (type !== "quote" && type !== "invoice") {
         return new NextResponse("Invalid type", { status: 400 });
+    }
+
+    // Default separator
+    let decimalSeparator = ",";
+    const organization = await prisma.organization.findFirst();
+    if (organization?.decimalSeparator) {
+        decimalSeparator = organization.decimalSeparator;
     }
 
     let data;
@@ -31,8 +47,12 @@ export async function GET(req: NextRequest, { params }: Props) {
             ...quote,
             date: new Date(quote.date).toLocaleDateString(),
             dueDate: quote.dueDate ? new Date(quote.dueDate).toLocaleDateString() : null,
-            total: quote.total.toFixed(2),
-            items: quote.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+            total: formatCurrency(quote.total, decimalSeparator),
+            items: quote.items.map(item => ({
+                ...item,
+                total: formatCurrency(item.total, decimalSeparator),
+                price: formatCurrency(item.price, decimalSeparator)
+            })),
         };
         filename = `${quote.number}.pdf`;
     } else {
@@ -47,17 +67,24 @@ export async function GET(req: NextRequest, { params }: Props) {
         });
         if (!invoice) return new NextResponse("Invoice not found", { status: 404 });
 
-        const organization = await prisma.organization.findFirst();
-
         data = {
             ...invoice,
             date: new Date(invoice.date).toLocaleDateString(),
             dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : null,
-            total: (invoice.isBalance && invoice.retainerDeductionAmount
-                ? (invoice.total - invoice.retainerDeductionAmount)
-                : invoice.total
-            ).toFixed(2),
-            items: invoice.items.map(item => ({ ...item, total: item.total.toFixed(2), price: item.price.toFixed(2) })),
+            total: formatCurrency(
+                invoice.isBalance && invoice.retainerDeductionAmount
+                    ? (invoice.total - invoice.retainerDeductionAmount)
+                    : invoice.total,
+                decimalSeparator
+            ),
+            items: invoice.items.map(item => ({
+                ...item,
+                total: formatCurrency(item.total, decimalSeparator),
+                price: formatCurrency(item.price, decimalSeparator)
+            })),
+            retainerDeductionAmount: invoice.retainerDeductionAmount
+                ? formatCurrency(invoice.retainerDeductionAmount, decimalSeparator)
+                : undefined,
             organization,
         };
         filename = `${invoice.number}.pdf`;

@@ -137,6 +137,17 @@ export default function SettingsForm({ organization, dict, defaultLanguage }: Se
                             <option value="AED">AED (د.إ)</option>
                         </select>
                     </div>
+                    <div className={styles.group}>
+                        <label className={styles.label}>{dict.settings.form.number_format}</label>
+                        <select
+                            name="decimalSeparator"
+                            defaultValue={organization?.decimalSeparator || ","}
+                            className={styles.input}
+                        >
+                            <option value=",">1 234,56</option>
+                            <option value=".">1,234.56</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className={styles.group}>

@@ -24,6 +24,8 @@ export async function updateOrganization(formData: FormData) {
     const website = formData.get("website") as string;
     const language = formData.get("language") as string;
     const currency = formData.get("currency") as string;
+    const decimalSeparator = formData.get("decimalSeparator") as string;
+
 
     // Handle Logo
     const logoFile = formData.get("logo") as File | null;
@@ -63,6 +65,7 @@ export async function updateOrganization(formData: FormData) {
                 website,
                 language,
                 currency,
+                decimalSeparator,
                 ...(logoUrl && { logoUrl }),
                 invoicePrefix: formData.get("invoicePrefix") as string,
                 invoiceIncludePrefix: formData.get("invoiceIncludePrefix") === "on",
@@ -88,6 +91,7 @@ export async function updateOrganization(formData: FormData) {
                 website,
                 language: language || "en",
                 currency: currency || "EUR",
+                decimalSeparator: decimalSeparator || ",",
                 logoUrl,
                 invoicePrefix: formData.get("invoicePrefix") as string,
                 invoiceIncludePrefix: formData.get("invoiceIncludePrefix") === "on",
