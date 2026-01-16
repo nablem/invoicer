@@ -220,6 +220,17 @@
             align-items: flex-start;
         }
 
+        .bank-grid {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            column-gap: 10px;
+            row-gap: 2px;
+        }
+
+        .bank-label {
+            color: #666;
+        }
+
         .footer-column.bank {
             flex: 2;
         }
@@ -354,11 +365,21 @@
         {{#if organization.iban}}
         <div class="footer-column bank">
             <div class="section-title">Coordonnées bancaires</div>
-            <div class="terms-content">
-                {{#if organization.bankBeneficiary}}<div>Bénéficiaire : {{organization.bankBeneficiary}}</div>{{/if}}
-                {{#if organization.bankName}}<div>Banque : {{organization.bankName}}</div>{{/if}}
-                <div>IBAN : {{organization.iban}}</div>
-                {{#if organization.bic}}<div>BIC/SWIFT : {{organization.bic}}</div>{{/if}}
+            <div class="terms-content bank-grid">
+                {{#if organization.bankBeneficiary}}
+                <div class="bank-label">Bénéficiaire</div>
+                <div>{{organization.bankBeneficiary}}</div>
+                {{/if}}
+                {{#if organization.bankName}}
+                <div class="bank-label">Banque</div>
+                <div>{{organization.bankName}}</div>
+                {{/if}}
+                <div class="bank-label">IBAN</div>
+                <div>{{organization.iban}}</div>
+                {{#if organization.bic}}
+                <div class="bank-label">BIC/SWIFT</div>
+                <div>{{organization.bic}}</div>
+                {{/if}}
             </div>
         </div>
         {{/if}}
@@ -370,7 +391,7 @@
                 <p>
                     TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
                     Directive 2006/112/CE).
-                    <br /><i>Export of Services from Georgia — The customer is liable for VAT under the reverse charge
+                    <i>Export of Services from Georgia — The customer is liable for VAT under the reverse charge
                         mechanism.</i>
                 </p>
             </div>
