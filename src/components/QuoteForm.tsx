@@ -8,6 +8,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Dictionary } from "@/lib/dictionaries";
 import SmartTextarea from "./SmartTextarea";
+import { formatPrice } from "@/lib/format";
 
 interface FormItem {
     id?: string;
@@ -35,9 +36,10 @@ interface QuoteFormProps {
     readOnly?: boolean;
     defaultVat: number;
     currency?: string;
+    decimalSeparator?: string;
 }
 
-export default function QuoteForm({ clients, quote, dict, convertAction, readOnly, defaultVat, currency = "EUR" }: QuoteFormProps) {
+export default function QuoteForm({ clients, quote, dict, convertAction, readOnly, defaultVat, currency = "EUR", decimalSeparator = "," }: QuoteFormProps) {
     const isEditing = !!quote;
     const action = isEditing ? updateQuote.bind(null, quote.id) : createQuote;
 
@@ -198,7 +200,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
 
                         {/* VAT input removed */}
                         <div style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
-                            {item.total.toFixed(2)}
+                            {formatPrice(item.total, "", decimalSeparator).trim()}
                         </div>
                         {!readOnly && (
                             <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
@@ -216,7 +218,7 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
 
                 <div className={styles.totalRow}>
                     <span>{defaultVat > 0 ? dict.common.total_ttc : dict.common.total_ht}:</span>
-                    <span>{items.reduce((sum, item) => sum + item.total, 0).toFixed(2)} {currency}</span>
+                    <span>{formatPrice(items.reduce((sum, item) => sum + item.total, 0), currency, decimalSeparator)}</span>
                 </div>
             </div>
 

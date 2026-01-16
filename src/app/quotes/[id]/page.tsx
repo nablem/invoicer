@@ -92,6 +92,7 @@ export default async function EditQuotePage({ params }: PageProps) {
                 readOnly={isLocked}
                 defaultVat={organization?.defaultVat || 0}
                 currency={quote.currency}
+                decimalSeparator={organization?.decimalSeparator}
             />
         </div>
     );

@@ -25,6 +25,7 @@ export default async function NewInvoicePage() {
                 defaultVat={organization?.defaultVat || 0}
                 title={dict.invoices.new_invoice}
                 currency={organization?.currency || "EUR"}
+                decimalSeparator={organization?.decimalSeparator}
             />
         </div>
     );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getDictionary } from "@/lib/i18n";
 import styles from "@/app/page.module.css"; // Reuse global or create specific? reusing global/inline for consistency with dashboard
+import { formatPrice } from "@/lib/format";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -18,6 +19,8 @@ export default async function ClientDetailsPage({ params }: PageProps) {
             invoices: { orderBy: { createdAt: "desc" } }
         }
     });
+
+    const organization = await prisma.organization.findFirst();
 
     if (!client) {
         return <div>Client not found</div>;
@@ -65,7 +68,7 @@ export default async function ClientDetailsPage({ params }: PageProps) {
                                         </Link>
                                     </td>
                                     <td style={{ padding: '0.75rem' }}>{new Date(q.date).toLocaleDateString()}</td>
-                                    <td style={{ padding: '0.75rem' }}>{q.total.toFixed(2)}</td>
+                                    <td style={{ padding: '0.75rem' }}>{formatPrice(q.total, q.currency, organization?.decimalSeparator)}</td>
                                     <td style={{ padding: '0.75rem' }}>{dict.quotes.status[q.status as keyof typeof dict.quotes.status] || q.status}</td>
                                 </tr>
                             ))}
@@ -94,7 +97,7 @@ export default async function ClientDetailsPage({ params }: PageProps) {
                                         </Link>
                                     </td>
                                     <td style={{ padding: '0.75rem' }}>{new Date(i.date).toLocaleDateString()}</td>
-                                    <td style={{ padding: '0.75rem' }}>{i.total.toFixed(2)}</td>
+                                    <td style={{ padding: '0.75rem' }}>{formatPrice(i.total, i.currency, organization?.decimalSeparator)}</td>
                                     <td style={{ padding: '0.75rem' }}>{dict.invoices.status[i.status as keyof typeof dict.invoices.status] || i.status}</td>
                                 </tr>
                             ))}

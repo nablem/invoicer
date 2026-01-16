@@ -6,6 +6,7 @@ import InvoiceActions from "@/components/InvoiceActions";
 import { getDictionary } from "@/lib/i18n";
 import SearchInput from "@/components/SearchInput";
 import StatusFilter from "@/components/StatusFilter";
+import { formatPrice } from "@/lib/format";
 
 // @ts-ignore
 import Pagination from "@/components/Pagination";
@@ -32,7 +33,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
         where.status = { in: status.split(",") };
     }
 
-    const [invoices, totalCount] = await Promise.all([
+    const invoicesAndCount = await Promise.all([
         prisma.invoice.findMany({
             where,
             include: { client: true },
@@ -40,8 +41,12 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
             take: pageSize,
             skip: skip,
         }),
-        prisma.invoice.count({ where })
+        prisma.invoice.count({ where }),
+        prisma.organization.findFirst()
     ]);
+
+    const [invoices, totalCount] = invoicesAndCount;
+    const organization = invoicesAndCount[2];
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -91,7 +96,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                                         invoice.isBalance ? dict.invoices.type_balance :
                                             '-'}
                             </td>
-                            <td style={{ textAlign: "right" }}>{(invoice.total - (invoice.retainerDeductionAmount || 0)).toFixed(2)} {invoice.currency}</td>
+                            <td style={{ textAlign: "right" }}>{formatPrice(invoice.total - (invoice.retainerDeductionAmount || 0), invoice.currency, organization?.decimalSeparator)}</td>
                             <td><span className={`${styles.status} ${styles['status_' + invoice.status]}`}>
                                 {(dict.invoices.status as any)[invoice.status] || invoice.status}
                             </span></td>

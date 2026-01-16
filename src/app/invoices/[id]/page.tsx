@@ -98,6 +98,7 @@ export default async function EditInvoicePage({ params }: PageProps) {
                 defaultVat={organization?.defaultVat || 0}
                 retainerInvoiceNumber={invoice.retainerInvoice?.number}
                 currency={invoice.currency}
+                decimalSeparator={organization?.decimalSeparator}
             />
         </div>
     );

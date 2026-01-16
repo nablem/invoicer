@@ -10,6 +10,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Dictionary } from "@/lib/dictionaries";
 import SmartTextarea from "./SmartTextarea";
+import { formatPrice } from "@/lib/format";
 
 interface FormItem {
     id?: string;
@@ -47,9 +48,10 @@ interface InvoiceFormProps {
     defaultVat: number;
     title?: string;
     currency?: string;
+    decimalSeparator?: string;
 }
 
-export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat, title, currency = "EUR" }: InvoiceFormProps) {
+export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat, title, currency = "EUR", decimalSeparator = "," }: InvoiceFormProps) {
     const isEditing = !!invoice;
     const action = isEditing ? updateInvoice.bind(null, invoice.id) : createInvoice;
 
@@ -542,7 +544,7 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
                         {/* VAT input hidden but keeping value for form submission if needed, though we set it in updateItem now */}
                         {/* <input ... vat input removed ... /> */}
                         <div style={{ fontWeight: 'bold', textAlign: 'right', paddingTop: '0.75rem' }}>
-                            {item.total.toFixed(2)}
+                            {formatPrice(item.total, "", decimalSeparator).trim()}
                         </div>
                         {!readOnly && !isRetainer && !isBalance && (
                             <button type="button" onClick={() => removeItem(index)} className={styles.deleteButton} aria-label="Remove item" style={{ marginTop: '0.5rem' }}>
@@ -570,14 +572,14 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
                         <div></div>
 
                         <div style={{ fontWeight: 'bold', textAlign: 'right', color: '#ef4444' }}>
-                            - {retainerDeductionAmount.toFixed(2)}
+                            - {formatPrice(retainerDeductionAmount, "", decimalSeparator).trim()}
                         </div>
                     </div>
                 )}
 
                 <div className={styles.totalRow}>
                     <span>{defaultVat > 0 ? dict.common.total_ttc : dict.common.total_ht}:</span>
-                    <span>{total.toFixed(2)} {currency}</span>
+                    <span>{formatPrice(total, currency, decimalSeparator)}</span>
                 </div>
             </div>
 

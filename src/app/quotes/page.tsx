@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/i18n";
 import QuoteActions from "@/components/QuoteActions";
 import SearchInput from "@/components/SearchInput";
 import StatusFilter from "@/components/StatusFilter";
+import { formatPrice } from "@/lib/format";
 
 // @ts-ignore
 import Pagination from "@/components/Pagination";
@@ -33,7 +34,7 @@ export default async function QuotesPage({ searchParams }: PageProps) {
     }
 
     // Parallel fetch for data and count
-    const [quotes, totalCount] = await Promise.all([
+    const quotesAndCount = await Promise.all([
         prisma.quote.findMany({
             where,
             include: { client: true },
@@ -41,8 +42,11 @@ export default async function QuotesPage({ searchParams }: PageProps) {
             take: pageSize,
             skip: skip,
         }),
-        prisma.quote.count({ where })
+        prisma.quote.count({ where }),
+        prisma.organization.findFirst()
     ]);
+    const [quotes, totalCount] = quotesAndCount;
+    const organization = quotesAndCount[2];
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -85,7 +89,7 @@ export default async function QuotesPage({ searchParams }: PageProps) {
                                 </Link>
                             </td>
                             <td>{quote.client.name}</td>
-                            <td style={{ textAlign: "right" }}>{quote.total.toFixed(2)} {quote.currency}</td>
+                            <td style={{ textAlign: "right" }}>{formatPrice(quote.total, quote.currency, organization?.decimalSeparator)}</td>
                             <td><span className={`${styles.status} ${styles['status_' + quote.status]}`}>
                                 {(dict.quotes.status as any)[quote.status] || quote.status}
                             </span></td>
