@@ -282,7 +282,7 @@
                 <div class="client-label">Facturé à</div>
                 <div class="client-name">{{client.name}}</div>
                 <div class="client-details">
-                    {{#if client.vatNumber}}<div>FR{{client.vatNumber}}</div>{{/if}}
+                    {{#if client.vatNumber}}<div>{{client.vatNumber}}</div>{{/if}}
                     {{#if client.companyId}}<div>SIRET {{client.companyId}}</div>{{/if}}
                     {{#if client.address}}<div>{{client.address}}</div>{{/if}}
                     {{#if client.city}}
@@ -352,7 +352,7 @@
             <tr class="grand-total">
                 <td class="total-label">
                     Total HT
-                    <div class="note-subtext">TVA: 0,00 € — Autoliquidation</div>
+                    <div class="note-subtext">TVA 0,00 € — Autoliquidation</div>
                 </td>
                 <td class="total-value">{{total}}€</td>
             </tr>

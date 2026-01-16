@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Devis {{number}}</title>
+    <title>Facture {{number}}</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -121,7 +121,8 @@
             text-align: left;
             color: #666;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 9px;
+            /* Reduced from 13px */
             text-transform: uppercase;
             padding: 8px 0;
             border-bottom: 1px solid #e5e5e5;
@@ -131,6 +132,8 @@
             padding: 10px 0;
             border-bottom: 1px solid #f0f0f0;
             vertical-align: top;
+            font-size: 11px;
+            /* Added: reduced from inherited 16px */
         }
 
         .col-right {
@@ -140,7 +143,8 @@
         .item-description {
             color: #444;
             white-space: pre-wrap;
-            font-size: 13px;
+            font-size: 9px;
+            /* Reduced from 13px */
             margin-top: 2px;
         }
 
@@ -177,6 +181,13 @@
             font-weight: 600;
         }
 
+        .grand-total {
+            /* Handled above */
+            border-top: 1px solid #e5e5e5;
+            padding-top: 16px !important;
+            margin-top: 8px;
+        }
+
         .section-title {
             font-size: 14px;
             font-weight: 600;
@@ -208,8 +219,23 @@
             align-items: flex-start;
         }
 
-        .footer-column {
-            flex: 1;
+        .bank-grid {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            column-gap: 10px;
+            row-gap: 2px;
+        }
+
+        .bank-label {
+            color: #666;
+        }
+
+        .footer-column.bank {
+            flex: 2;
+        }
+
+        .footer-column.terms {
+            flex: 3;
         }
     </style>
 </head>
@@ -236,20 +262,20 @@
 
         <div class="header-right">
             <div class="meta-grid">
-                <div class="meta-label">Devis N°</div>
+                <div class="meta-label">Facture N°</div>
                 <div class="meta-value">{{number}}</div>
 
                 <div class="meta-label">Date</div>
                 <div class="meta-value">{{date}}</div>
 
                 {{#if dueDate}}
-                <div class="meta-label">Validité</div>
+                <div class="meta-label">Échéance</div>
                 <div class="meta-value">{{dueDate}}</div>
                 {{/if}}
             </div>
 
             <div class="client-box">
-                <div class="client-label">Adressé à</div>
+                <div class="client-label">Facturé à</div>
                 <div class="client-name">{{client.name}}</div>
                 <div class="client-details">
                     {{#if client.vatNumber}}<div>{{client.vatNumber}}</div>{{/if}}
@@ -276,6 +302,19 @@
             </tr>
         </thead>
         <tbody>
+            {{#if isRetainer}}
+            <!-- Logic for Retainer Invoice -->
+            <tr>
+                <td>
+                    <div class="item-title">Acompte sur devis {{quote.number}}</div>
+                    <div class="item-description">à hauteur de {{retainerPercentage}}%</div>
+                </td>
+                <td class="col-right"></td>
+                <td class="col-right">{{total}}€</td>
+                <td class="col-right">{{total}}€</td>
+            </tr>
+            {{else}}
+            <!-- Logic for Standard and Balance Invoices -->
             {{#each items}}
             <tr>
                 <td>
@@ -287,6 +326,20 @@
                 <td class="col-right">{{total}}€</td>
             </tr>
             {{/each}}
+
+            {{#if isBalance}}
+            <!-- Deduction line for Balance Invoice -->
+            <tr>
+                <td>
+                    <div class="item-title">Montant déjà réglé</div>
+                    <div class="item-description">Facture d'acompte {{retainerInvoice.number}}</div>
+                </td>
+                <td class="col-right"></td>
+                <td class="col-right"></td>
+                <td class="col-right">-{{retainerDeductionAmount}}€</td>
+            </tr>
+            {{/if}}
+            {{/if}}
         </tbody>
     </table>
 
@@ -295,40 +348,50 @@
             <tr class="grand-total">
                 <td class="total-label">
                     Total HT
-                    <div class="note-subtext">TVA 0,00 € — Autoliquidation</div>
+                    <div class="note-subtext">TVA: 0,00 € — Autoliquidation</div>
                 </td>
                 <td class="total-value">{{total}}€</td>
             </tr>
         </table>
     </div>
-    <div class="section-title">Remarques</div>
-    <div class="terms-content">
-        <p>
-            TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
-            Directive 2006/112/CE).<br />
-            <i>Export of Services from Georgia — The customer is liable for VAT under the reverse charge
-                mechanism.</i>
-        </p>
-    </div>
 
-    <!-- Notes Section -->
-    {{#if notes}}
-    <div class="footer-column">
-        <div class="section-title">Notes</div>
-        <div class="terms-content">
-            <p>{{notes}}</p>
+    <div class="footer-columns">
+        <!-- Bank Details Section -->
+        {{#if organization.iban}}
+        <div class="footer-column bank">
+            <div class="section-title">Coordonnées bancaires</div>
+            <div class="terms-content bank-grid">
+                {{#if organization.bankBeneficiary}}
+                <div class="bank-label">Bénéficiaire</div>
+                <div>{{organization.bankBeneficiary}}</div>
+                {{/if}}
+                {{#if organization.bankName}}
+                <div class="bank-label">Banque</div>
+                <div>{{organization.bankName}}</div>
+                {{/if}}
+                <div class="bank-label">IBAN</div>
+                <div>{{organization.iban}}</div>
+                {{#if organization.bic}}
+                <div class="bank-label">BIC/SWIFT</div>
+                <div>{{organization.bic}}</div>
+                {{/if}}
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- Terms & Conditions Section -->
+        <div class="footer-column terms">
+            <div class="section-title">Remarques</div>
+            <div class="terms-content">
+                <p>
+                    TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
+                    Directive 2006/112/CE).
+                    <i>Export of Services from Georgia — The customer is liable for VAT under the reverse charge
+                        mechanism.</i>
+                </p>
+            </div>
         </div>
     </div>
-    {{/if}}
-
-    <!-- Signature Section Example (Optional, good for quotes) -->
-    <!-- 
-        <div class="footer-column">
-             <div class="section-title">Bon pour accord</div>
-             <div style="height: 80px; border: 1px solid #e5e5e5; margin-top: 10px;"></div>
-             <div class="note-subtext" style="margin-top: 5px;">Date et signature</div>
-        </div> 
-        -->
 </body>
 
 </html>

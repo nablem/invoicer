@@ -121,7 +121,8 @@
             text-align: left;
             color: #666;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 9px;
+            /* Reduced from 13px */
             text-transform: uppercase;
             padding: 8px 0;
             border-bottom: 1px solid #e5e5e5;
@@ -131,6 +132,8 @@
             padding: 10px 0;
             border-bottom: 1px solid #f0f0f0;
             vertical-align: top;
+            font-size: 11px;
+            /* Added: reduced from inherited 16px */
         }
 
         .col-right {
@@ -140,7 +143,8 @@
         .item-description {
             color: #444;
             white-space: pre-wrap;
-            font-size: 13px;
+            font-size: 9px;
+            /* Reduced from 13px */
             margin-top: 2px;
         }
 
@@ -295,7 +299,7 @@
             <tr class="grand-total">
                 <td class="total-label">
                     Total HT
-                    <div class="note-subtext">TVA 0,00 € — Autoliquidation</div>
+                    <div class="note-subtext">TVA: 0,00 € — Autoliquidation</div>
                 </td>
                 <td class="total-value">{{total}}€</td>
             </tr>
