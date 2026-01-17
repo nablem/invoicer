@@ -303,6 +303,9 @@
     </div>
     <div class="section-title">Remarques</div>
     <div class="terms-content">
+        {{#if notes}}
+        <p>{{notes}}</p>
+        {{/if}}
         <p>
             TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
             Directive 2006/112/CE).<br />
@@ -310,16 +313,6 @@
                 mechanism.</i>
         </p>
     </div>
-
-    <!-- Notes Section -->
-    {{#if notes}}
-    <div class="footer-column">
-        <div class="section-title">Notes</div>
-        <div class="terms-content">
-            <p>{{notes}}</p>
-        </div>
-    </div>
-    {{/if}}
 
     <!-- Signature Section Example (Optional, good for quotes) -->
     <!-- 
