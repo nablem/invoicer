@@ -3,7 +3,7 @@
 import { updateOrganization, deleteTestData } from "@/actions/settings";
 import { Dictionary } from "@/lib/dictionaries";
 import styles from "./SettingsForm.module.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface SettingsFormProps {
@@ -28,6 +28,18 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
     const [prefix, setPrefix] = useState(organization?.invoicePrefix ?? "INV-");
     const [sequence, setSequence] = useState(organization?.invoiceSequence ?? 1);
     const [digits, setDigits] = useState(organization?.invoiceDigits ?? 3);
+
+    useEffect(() => {
+        if (organization) {
+            setPreviewUrl(organization.logoUrl);
+            setIncludePrefix(organization.invoiceIncludePrefix ?? true);
+            setIncludeYear(organization.invoiceIncludeYear ?? false);
+            setIncludeMonth(organization.invoiceIncludeMonth ?? false);
+            setPrefix(organization.invoicePrefix ?? "INV-");
+            setSequence(organization.invoiceSequence ?? 1);
+            setDigits(organization.invoiceDigits ?? 3);
+        }
+    }, [organization]);
 
     const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const checked = e.target.checked;
@@ -98,18 +110,18 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                 <div className={styles.row}>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.name}</label>
-                        <input name="name" defaultValue={organization?.name} className={styles.input} />
+                        <input key={organization?.name} name="name" defaultValue={organization?.name} className={styles.input} />
                     </div>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.company_id}</label>
-                        <input name="companyId" defaultValue={organization?.companyId} className={styles.input} />
+                        <input key={organization?.companyId} name="companyId" defaultValue={organization?.companyId} className={styles.input} />
                     </div>
                 </div>
 
                 <div className={styles.row}>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.vat_number}</label>
-                        <input name="vatNumber" defaultValue={organization?.vatNumber} className={styles.input} />
+                        <input key={organization?.vatNumber} name="vatNumber" defaultValue={organization?.vatNumber} className={styles.input} />
                     </div>
                 </div>
 
@@ -117,6 +129,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.vat_rate}</label>
                         <input
+                            key={organization?.defaultVat}
                             name="defaultVat"
                             type="number"
                             step="0.1"
@@ -127,6 +140,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.currency}</label>
                         <select
+                            key={organization?.currency}
                             name="currency"
                             defaultValue={organization?.currency || "EUR"}
                             className={styles.input}
@@ -147,6 +161,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.number_format}</label>
                         <select
+                            key={organization?.decimalSeparator}
                             name="decimalSeparator"
                             defaultValue={organization?.decimalSeparator || ","}
                             className={styles.input}
@@ -159,24 +174,24 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
 
                 <div className={styles.group}>
                     <label className={styles.label}>{dict.settings.form.address}</label>
-                    <input name="address" defaultValue={organization?.address} className={styles.input} />
+                    <input key={organization?.address} name="address" defaultValue={organization?.address} className={styles.input} />
                 </div>
 
                 <div className={styles.row}>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.city}</label>
-                        <input name="city" defaultValue={organization?.city} className={styles.input} />
+                        <input key={organization?.city} name="city" defaultValue={organization?.city} className={styles.input} />
                     </div>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.zip_code}</label>
-                        <input name="zipCode" defaultValue={organization?.zipCode} className={styles.input} />
+                        <input key={organization?.zipCode} name="zipCode" defaultValue={organization?.zipCode} className={styles.input} />
                     </div>
                 </div>
 
                 <div className={styles.row}>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.country}</label>
-                        <input name="country" defaultValue={organization?.country} className={styles.input} />
+                        <input key={organization?.country} name="country" defaultValue={organization?.country} className={styles.input} />
                     </div>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.language}</label>
@@ -195,17 +210,17 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                 <div className={styles.row}>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.email}</label>
-                        <input name="email" type="email" defaultValue={organization?.email} className={styles.input} />
+                        <input key={organization?.email} name="email" type="email" defaultValue={organization?.email} className={styles.input} />
                     </div>
                     <div className={styles.group}>
                         <label className={styles.label}>{dict.settings.form.phone}</label>
-                        <input name="phone" defaultValue={organization?.phone} className={styles.input} />
+                        <input key={organization?.phone} name="phone" defaultValue={organization?.phone} className={styles.input} />
                     </div>
                 </div>
 
                 <div className={styles.group}>
                     <label className={styles.label}>{dict.settings.form.website}</label>
-                    <input name="website" defaultValue={organization?.website} className={styles.input} />
+                    <input key={organization?.website} name="website" defaultValue={organization?.website} className={styles.input} />
                 </div>
 
                 {/* Bank Details Section */}
@@ -214,21 +229,21 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <label className={styles.label}>{dict.settings.form.bank.beneficiary}</label>
-                            <input name="bankBeneficiary" defaultValue={organization?.bankBeneficiary} className={styles.input} />
+                            <input key={organization?.bankBeneficiary} name="bankBeneficiary" defaultValue={organization?.bankBeneficiary} className={styles.input} />
                         </div>
                         <div className={styles.group}>
                             <label className={styles.label}>{dict.settings.form.bank.bank_name}</label>
-                            <input name="bankName" defaultValue={organization?.bankName} className={styles.input} />
+                            <input key={organization?.bankName} name="bankName" defaultValue={organization?.bankName} className={styles.input} />
                         </div>
                     </div>
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <label className={styles.label}>{dict.settings.form.bank.iban}</label>
-                            <input name="iban" defaultValue={organization?.iban} className={styles.input} />
+                            <input key={organization?.iban} name="iban" defaultValue={organization?.iban} className={styles.input} />
                         </div>
                         <div className={styles.group}>
                             <label className={styles.label}>{dict.settings.form.bank.bic}</label>
-                            <input name="bic" defaultValue={organization?.bic} className={styles.input} />
+                            <input key={organization?.bic} name="bic" defaultValue={organization?.bic} className={styles.input} />
                         </div>
                     </div>
                 </div>
