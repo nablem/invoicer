@@ -71,6 +71,7 @@ export const fr = {
         mark_as_sent: "Marquer comme Envoyé",
         mark_as_accepted: "Marquer comme Accepté",
         mark_as_rejected: "Marquer comme Refusé",
+        mark_as_sent_for_signature: "Marquer comme En Signature",
         form: {
             client: "Client",
             select_client: "Sélectionner Client",
@@ -278,6 +279,7 @@ export const en: Dictionary = {
         mark_as_sent: "Mark as Sent",
         mark_as_accepted: "Mark as Accepted",
         mark_as_rejected: "Mark as Rejected",
+        mark_as_sent_for_signature: "Mark as Signing",
         form: {
             client: "Client",
             select_client: "Select Client",

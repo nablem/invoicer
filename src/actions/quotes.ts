@@ -167,7 +167,7 @@ export async function deleteQuote(id: string) {
 }
 
 export async function updateQuoteStatus(id: string, status: string) {
-    const validStatuses = ["DRAFT", "SENT", "ACCEPTED", "REJECTED"];
+    const validStatuses = ["DRAFT", "SENT", "ACCEPTED", "REJECTED", "SENT_FOR_SIGNATURE"];
     if (!validStatuses.includes(status)) {
         throw new Error("Invalid status");
     }

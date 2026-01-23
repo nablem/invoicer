@@ -48,32 +48,15 @@ export default async function EditQuotePage({ params }: PageProps) {
                     </span>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                    <a
-                        href={`/api/pdf/quote/${quote.id}`}
-                        target="_blank"
-                        className={styles.secondaryButton}
-                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
-                    >
-                        {dict.quotes.download_pdf}
-                    </a>
                     <SplitButton
-                        mainAction={sendQuote.bind(null, quote.id)}
-                        mainLabel={dict.quotes.send_email}
+                        mainHref={`/api/pdf/quote/${quote.id}`}
+                        mainLabel={dict.quotes.download_pdf}
                         dropdownItems={[
-                            { action: updateStatus.bind(null, quote.id, "SENT"), label: dict.quotes.mark_as_sent }
+                            { action: updateStatus.bind(null, quote.id, "SENT_FOR_SIGNATURE"), label: dict.quotes.mark_as_sent_for_signature || "Mark as sent for signature" },
+                            { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted },
+                            { action: updateStatus.bind(null, quote.id, "REJECTED"), label: dict.quotes.mark_as_rejected }
                         ]}
-                        color="blue"
-                        mainActionDisabled={emailMissing}
-                    />
-
-                    <SplitButton
-                        mainAction={sendForSigning.bind(null, quote.id)}
-                        mainLabel={dict.quotes.sign_docuseal}
-                        dropdownItems={[
-                            { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted }
-                        ]}
-                        color="yellow"
-                        mainActionDisabled={emailMissing}
+                        color="default"
                     />
                 </div>
             </div>

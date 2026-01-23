@@ -15,7 +15,7 @@ export default function QuoteActions({ id, dict }: QuoteActionsProps) {
             mainHref={`/quotes/${id}`}
             mainLabel={dict.common.edit}
             dropdownItems={[
-                { action: updateQuoteStatus.bind(null, id, "SENT"), label: dict.quotes.mark_as_sent },
+                { action: updateQuoteStatus.bind(null, id, "SENT_FOR_SIGNATURE"), label: dict.quotes.mark_as_sent_for_signature || "Mark as Signing" },
                 { action: updateQuoteStatus.bind(null, id, "ACCEPTED"), label: dict.quotes.mark_as_accepted },
                 { action: updateQuoteStatus.bind(null, id, "REJECTED"), label: dict.quotes.mark_as_rejected },
                 { action: deleteQuote.bind(null, id), label: dict.common.delete }

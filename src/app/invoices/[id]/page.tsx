@@ -51,35 +51,17 @@ export default async function EditInvoicePage({ params }: PageProps) {
                     </span>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                    <a
-                        href={`/api/pdf/invoice/${invoice.id}`}
-                        target="_blank"
-                        className={styles.secondaryButton}
-                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
-                    >
-                        {dict.quotes.download_pdf}
-                    </a>
-
                     <SplitButton
-                        mainAction={sendInvoice.bind(null, invoice.id)}
-                        mainLabel={dict.quotes.send_email}
+                        mainHref={`/api/pdf/invoice/${invoice.id}`}
+                        mainLabel={dict.quotes.download_pdf}
                         dropdownItems={[
-                            { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent }
+                            { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent },
+                            { action: updateStatus.bind(null, invoice.id, "PAID"), label: dict.invoices.mark_as_paid },
+                            { action: updateStatus.bind(null, invoice.id, "OVERDUE"), label: dict.invoices.mark_as_overdue },
+                            { action: updateStatus.bind(null, invoice.id, "CANCELLED"), label: dict.invoices.mark_as_cancelled }
                         ]}
-                        color="blue"
-                        mainActionDisabled={emailMissing}
+                        color="default"
                     />
-
-                    <SplitButton
-                        mainAction={updateStatus.bind(null, invoice.id, "PAID")}
-                        mainLabel={dict.invoices.mark_as_paid}
-                        dropdownItems={[
-                            { action: updateStatus.bind(null, invoice.id, "OVERDUE"), label: dict.invoices.mark_as_overdue }
-                        ]}
-                        color="green"
-                    />
-
-
                 </div>
             </div>
             <InvoiceForm
