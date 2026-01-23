@@ -94,10 +94,10 @@ export async function GET(req: NextRequest, { params }: Props) {
     try {
         let pdfBuffer: Buffer;
         if (type === "quote") {
-            const template = organization?.quoteTemplate || "quote";
+            const template = data.template || organization?.quoteTemplate || "quote";
             pdfBuffer = await generatePdf("quote", data, template);
         } else {
-            const template = organization?.invoiceTemplate || "invoice";
+            const template = data.template || organization?.invoiceTemplate || "invoice";
             pdfBuffer = await generatePdf("invoice", data, template);
         }
 
