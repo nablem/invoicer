@@ -11,8 +11,6 @@ export default async function SettingsPage() {
     const templates = {
         invoice: await getAvailableTemplates("invoice"),
         quote: await getAvailableTemplates("quote"),
-        emailInvoice: await getAvailableTemplates("email-invoice"),
-        emailQuote: await getAvailableTemplates("email-quote"),
     };
 
     return (

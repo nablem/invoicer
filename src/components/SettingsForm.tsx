@@ -13,8 +13,6 @@ interface SettingsFormProps {
     availableTemplates: {
         invoice: string[];
         quote: string[];
-        emailInvoice: string[];
-        emailQuote: string[];
     };
 }
 

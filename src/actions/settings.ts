@@ -80,8 +80,7 @@ export async function updateOrganization(formData: FormData) {
                 // Template Settings
                 invoiceTemplate: formData.get("invoiceTemplate") as string,
                 quoteTemplate: formData.get("quoteTemplate") as string,
-                invoiceEmailTemplate: formData.get("invoiceEmailTemplate") as string,
-                quoteEmailTemplate: formData.get("quoteEmailTemplate") as string,
+
             }
         });
     } else {
@@ -115,8 +114,7 @@ export async function updateOrganization(formData: FormData) {
                 // Template Settings
                 invoiceTemplate: (formData.get("invoiceTemplate") as string) || "invoice",
                 quoteTemplate: (formData.get("quoteTemplate") as string) || "quote",
-                invoiceEmailTemplate: (formData.get("invoiceEmailTemplate") as string) || "standard",
-                quoteEmailTemplate: (formData.get("quoteEmailTemplate") as string) || "standard",
+
             }
         });
     }

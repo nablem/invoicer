@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import InvoiceForm from "@/components/InvoiceForm";
 import styles from "../page.module.css";
-import { sendInvoice } from "@/actions/send";
 import { getDictionary } from "@/lib/i18n";
 import SplitButton from "@/components/SplitButton";
 import { updateInvoiceStatus as updateStatus } from "@/actions/invoices";

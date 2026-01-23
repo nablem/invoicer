@@ -3,7 +3,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-export async function getAvailableTemplates(type: "invoice" | "quote" | "email-invoice" | "email-quote"): Promise<string[]> {
+export async function getAvailableTemplates(type: "invoice" | "quote"): Promise<string[]> {
     let dirPath = "";
 
     switch (type) {
@@ -12,12 +12,6 @@ export async function getAvailableTemplates(type: "invoice" | "quote" | "email-i
             break;
         case "quote":
             dirPath = path.join(process.cwd(), "src", "templates", "quotes");
-            break;
-        case "email-invoice":
-            dirPath = path.join(process.cwd(), "src", "templates", "emails", "invoices");
-            break;
-        case "email-quote":
-            dirPath = path.join(process.cwd(), "src", "templates", "emails", "quotes");
             break;
     }
 

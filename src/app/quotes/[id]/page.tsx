@@ -5,8 +5,6 @@ import QuoteForm from "@/components/QuoteForm";
 import styles from "../page.module.css";
 import SplitButton from "@/components/SplitButton";
 import { createInvoiceFromQuote } from "@/actions/invoices";
-import { sendQuote } from "@/actions/send";
-import { sendForSigning } from "@/actions/signing";
 import { updateQuoteStatus as updateStatus } from "@/actions/quotes";
 import { getDictionary } from "@/lib/i18n";
 

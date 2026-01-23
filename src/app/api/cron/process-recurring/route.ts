@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendInvoice } from "@/actions/send";
+
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +72,7 @@ export async function GET() {
             });
 
             // 3. Optional: Auto-send the new invoice
-            // await sendInvoice(newInvoice.id);
+            // (Functionality removed)
 
             results.push({
                 parentInvoiceId: invoice.id,
