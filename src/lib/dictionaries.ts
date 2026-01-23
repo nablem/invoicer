@@ -157,7 +157,7 @@ export const fr = {
         },
         form: {
             name: "Nom / Dénomination",
-            company_id: "SIRET / SIREN",
+            company_id: "Numéro de l'entreprise",
             vat_number: "Numéro de TVA",
             vat_rate: "Taux de TVA (%)",
             currency: "Devise",
