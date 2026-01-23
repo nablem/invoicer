@@ -50,10 +50,12 @@ export default async function QuotesPage({ searchParams }: PageProps) {
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    const statusOptions = Object.entries(dict.quotes.status).map(([value, label]) => ({
-        value,
-        label: label as string
-    }));
+    const statusOptions = Object.entries(dict.quotes.status)
+        .filter(([value]) => value !== 'SENT')
+        .map(([value, label]) => ({
+            value,
+            label: label as string
+        }));
 
     return (
         <div className={styles.container}>
@@ -73,7 +75,7 @@ export default async function QuotesPage({ searchParams }: PageProps) {
                         <th>{dict.quotes.number}</th>
                         <th>{dict.quotes.client}</th>
                         <th style={{ textAlign: "right" }}>{dict.common.total}</th>
-                        <th style={{ display: "flex", alignItems: "center" }}>
+                        <th style={{ display: "flex", alignItems: "center", minWidth: '150px' }}>
                             {dict.common.status}
                             <StatusFilter options={statusOptions} />
                         </th>

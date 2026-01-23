@@ -74,7 +74,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                         <th>{dict.quotes.client}</th>
                         <th>{dict.invoices.type}</th>
                         <th style={{ textAlign: "right" }}>{dict.common.total}</th>
-                        <th style={{ display: "flex", alignItems: "center" }}>
+                        <th style={{ display: "flex", alignItems: "center", minWidth: '150px' }}>
                             {dict.common.status}
                             <StatusFilter options={statusOptions} />
                         </th>
