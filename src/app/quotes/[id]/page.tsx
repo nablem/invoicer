@@ -39,46 +39,48 @@ export default async function EditQuotePage({ params }: PageProps) {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className={styles.title}>{quote.number}</h1>
-                    <span className={`${styles.status} ${styles['status_' + quote.status]}`}>
-                        {(dict.quotes.status as any)[quote.status] || quote.status}
-                    </span>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div className={styles.header}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h1 className={styles.title}>{quote.number}</h1>
+                        <span className={`${styles.status} ${styles['status_' + quote.status]}`}>
+                            {(dict.quotes.status as any)[quote.status] || quote.status}
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <SplitButton
+                            mainHref={`/api/pdf/quote/${quote.id}`}
+                            mainLabel={dict.quotes.download_pdf}
+                            dropdownItems={[
+                                { action: updateStatus.bind(null, quote.id, "SENT_FOR_SIGNATURE"), label: dict.quotes.mark_as_sent_for_signature || "Mark as sent for signature" },
+                                { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted },
+                                { action: updateStatus.bind(null, quote.id, "REJECTED"), label: dict.quotes.mark_as_rejected }
+                            ]}
+                            color="default"
+                            mainTarget="_blank"
+                        />
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <SplitButton
-                        mainHref={`/api/pdf/quote/${quote.id}`}
-                        mainLabel={dict.quotes.download_pdf}
-                        dropdownItems={[
-                            { action: updateStatus.bind(null, quote.id, "SENT_FOR_SIGNATURE"), label: dict.quotes.mark_as_sent_for_signature || "Mark as sent for signature" },
-                            { action: updateStatus.bind(null, quote.id, "ACCEPTED"), label: dict.quotes.mark_as_accepted },
-                            { action: updateStatus.bind(null, quote.id, "REJECTED"), label: dict.quotes.mark_as_rejected }
-                        ]}
-                        color="default"
-                        mainTarget="_blank"
-                    />
-                </div>
+                <QuoteForm
+                    clients={clients}
+                    quote={{
+                        ...quote,
+                        items: quote.items.map(item => ({
+                            ...item,
+                            title: item.title ?? undefined,
+                            vat: item.vat
+                        }))
+                    }}
+                    dict={dict}
+                    convertAction={createInvoiceFromQuote.bind(null, quote.id)}
+                    readOnly={isLocked}
+                    defaultVat={organization?.defaultVat || 0}
+                    currency={quote.currency}
+                    decimalSeparator={organization?.decimalSeparator}
+                    availableTemplates={await getAvailableTemplates("quote")}
+                    defaultTemplate={organization?.quoteTemplate || "quote"}
+                />
             </div>
-            <QuoteForm
-                clients={clients}
-                quote={{
-                    ...quote,
-                    items: quote.items.map(item => ({
-                        ...item,
-                        title: item.title ?? undefined,
-                        vat: item.vat
-                    }))
-                }}
-                dict={dict}
-                convertAction={createInvoiceFromQuote.bind(null, quote.id)}
-                readOnly={isLocked}
-                defaultVat={organization?.defaultVat || 0}
-                currency={quote.currency}
-                decimalSeparator={organization?.decimalSeparator}
-                availableTemplates={await getAvailableTemplates("quote")}
-                defaultTemplate={organization?.quoteTemplate || "quote"}
-            />
         </div>
     );
 }

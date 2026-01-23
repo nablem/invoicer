@@ -16,16 +16,18 @@ export default async function NewQuotePage() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.quotes.new_quote}</h1>
-            <QuoteForm
-                clients={clients}
-                dict={dict}
-                defaultVat={organization?.defaultVat || 0}
-                currency={organization?.currency || "EUR"}
-                decimalSeparator={organization?.decimalSeparator}
-                availableTemplates={availableTemplates}
-                defaultTemplate={organization?.quoteTemplate || "quote"}
-            />
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.quotes.new_quote}</h1>
+                <QuoteForm
+                    clients={clients}
+                    dict={dict}
+                    defaultVat={organization?.defaultVat || 0}
+                    currency={organization?.currency || "EUR"}
+                    decimalSeparator={organization?.decimalSeparator}
+                    availableTemplates={availableTemplates}
+                    defaultTemplate={organization?.quoteTemplate || "quote"}
+                />
+            </div>
         </div>
     );
 }

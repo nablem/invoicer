@@ -43,48 +43,50 @@ export default async function EditInvoicePage({ params }: PageProps) {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className={styles.title}>{invoice.number}</h1>
-                    <span className={`${styles.status} ${styles['status_' + invoice.status]}`}>
-                        {(dict.invoices.status as any)[invoice.status] || invoice.status}
-                    </span>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div className={styles.header}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h1 className={styles.title}>{invoice.number}</h1>
+                        <span className={`${styles.status} ${styles['status_' + invoice.status]}`}>
+                            {(dict.invoices.status as any)[invoice.status] || invoice.status}
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <SplitButton
+                            mainHref={`/api/pdf/invoice/${invoice.id}`}
+                            mainLabel={dict.quotes.download_pdf}
+                            dropdownItems={[
+                                { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent },
+                                { action: updateStatus.bind(null, invoice.id, "PAID"), label: dict.invoices.mark_as_paid },
+                                { action: updateStatus.bind(null, invoice.id, "OVERDUE"), label: dict.invoices.mark_as_overdue },
+                                { action: updateStatus.bind(null, invoice.id, "CANCELLED"), label: dict.invoices.mark_as_cancelled }
+                            ]}
+                            color="default"
+                            mainTarget="_blank"
+                        />
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <SplitButton
-                        mainHref={`/api/pdf/invoice/${invoice.id}`}
-                        mainLabel={dict.quotes.download_pdf}
-                        dropdownItems={[
-                            { action: updateStatus.bind(null, invoice.id, "SENT"), label: dict.invoices.mark_as_sent },
-                            { action: updateStatus.bind(null, invoice.id, "PAID"), label: dict.invoices.mark_as_paid },
-                            { action: updateStatus.bind(null, invoice.id, "OVERDUE"), label: dict.invoices.mark_as_overdue },
-                            { action: updateStatus.bind(null, invoice.id, "CANCELLED"), label: dict.invoices.mark_as_cancelled }
-                        ]}
-                        color="default"
-                        mainTarget="_blank"
-                    />
-                </div>
+                <InvoiceForm
+                    clients={clients}
+                    quotes={quotes}
+                    invoice={{
+                        ...invoice,
+                        items: invoice.items.map(item => ({
+                            ...item,
+                            title: item.title ?? undefined,
+                            vat: item.vat
+                        }))
+                    }}
+                    dict={dict}
+                    readOnly={isLocked}
+                    defaultVat={organization?.defaultVat || 0}
+                    retainerInvoiceNumber={invoice.retainerInvoice?.number}
+                    currency={invoice.currency}
+                    decimalSeparator={organization?.decimalSeparator}
+                    availableTemplates={await getAvailableTemplates("invoice")}
+                    defaultTemplate={organization?.invoiceTemplate || "invoice"}
+                />
             </div>
-            <InvoiceForm
-                clients={clients}
-                quotes={quotes}
-                invoice={{
-                    ...invoice,
-                    items: invoice.items.map(item => ({
-                        ...item,
-                        title: item.title ?? undefined,
-                        vat: item.vat
-                    }))
-                }}
-                dict={dict}
-                readOnly={isLocked}
-                defaultVat={organization?.defaultVat || 0}
-                retainerInvoiceNumber={invoice.retainerInvoice?.number}
-                currency={invoice.currency}
-                decimalSeparator={organization?.decimalSeparator}
-                availableTemplates={await getAvailableTemplates("invoice")}
-                defaultTemplate={organization?.invoiceTemplate || "invoice"}
-            />
         </div>
     );
 }

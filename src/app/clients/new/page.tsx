@@ -7,8 +7,10 @@ export default async function NewClientPage() {
     const { dict } = await getDictionary();
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>{dict.clients.new_client}</h1>
-            <ClientForm dict={dict} />
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.clients.new_client}</h1>
+                <ClientForm dict={dict} />
+            </div>
         </div>
     );
 }

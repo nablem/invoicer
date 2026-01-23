@@ -23,11 +23,13 @@ export default async function EditClientPage({ params }: PageProps) {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>{dict.clients.edit_client}</h1>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>{dict.clients.edit_client}</h1>
 
+                </div>
+                <ClientForm client={client} dict={dict} />
             </div>
-            <ClientForm client={client} dict={dict} />
         </div>
     );
 }

@@ -73,7 +73,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                         <th>{dict.quotes.number}</th>
                         <th>{dict.quotes.client}</th>
                         <th>{dict.invoices.type}</th>
-                        <th style={{ textAlign: "right" }}>{dict.common.total}</th>
+                        <th style={{ textAlign: "left" }}>{dict.common.total}</th>
                         <th style={{ display: "flex", alignItems: "center", minWidth: '150px' }}>
                             {dict.common.status}
                             <StatusFilter options={statusOptions} />
@@ -96,7 +96,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                                         invoice.isBalance ? dict.invoices.type_balance :
                                             '-'}
                             </td>
-                            <td style={{ textAlign: "right" }}>{formatPrice(invoice.total - (invoice.retainerDeductionAmount || 0), invoice.currency, organization?.decimalSeparator)}</td>
+                            <td style={{ textAlign: "left" }}>{formatPrice(invoice.total - (invoice.retainerDeductionAmount || 0), invoice.currency, organization?.decimalSeparator)}</td>
                             <td><span className={`${styles.status} ${styles['status_' + invoice.status]}`}>
                                 {(dict.invoices.status as any)[invoice.status] || invoice.status}
                             </span></td>

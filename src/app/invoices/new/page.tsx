@@ -20,17 +20,19 @@ export default async function NewInvoicePage() {
 
     return (
         <div className={styles.container}>
-            <InvoiceForm
-                clients={clients}
-                quotes={quotes}
-                dict={dict}
-                defaultVat={organization?.defaultVat || 0}
-                title={dict.invoices.new_invoice}
-                currency={organization?.currency || "EUR"}
-                decimalSeparator={organization?.decimalSeparator}
-                availableTemplates={availableTemplates}
-                defaultTemplate={organization?.invoiceTemplate || "invoice"}
-            />
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <InvoiceForm
+                    clients={clients}
+                    quotes={quotes}
+                    dict={dict}
+                    defaultVat={organization?.defaultVat || 0}
+                    title={dict.invoices.new_invoice}
+                    currency={organization?.currency || "EUR"}
+                    decimalSeparator={organization?.decimalSeparator}
+                    availableTemplates={availableTemplates}
+                    defaultTemplate={organization?.invoiceTemplate || "invoice"}
+                />
+            </div>
         </div>
     );
 }

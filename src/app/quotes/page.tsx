@@ -74,7 +74,7 @@ export default async function QuotesPage({ searchParams }: PageProps) {
                     <tr>
                         <th>{dict.quotes.number}</th>
                         <th>{dict.quotes.client}</th>
-                        <th style={{ textAlign: "right" }}>{dict.common.total}</th>
+                        <th style={{ textAlign: "left" }}>{dict.common.total}</th>
                         <th style={{ display: "flex", alignItems: "center", minWidth: '150px' }}>
                             {dict.common.status}
                             <StatusFilter options={statusOptions} />
@@ -91,7 +91,7 @@ export default async function QuotesPage({ searchParams }: PageProps) {
                                 </Link>
                             </td>
                             <td>{quote.client.name}</td>
-                            <td style={{ textAlign: "right" }}>{formatPrice(quote.total, quote.currency, organization?.decimalSeparator)}</td>
+                            <td style={{ textAlign: "left" }}>{formatPrice(quote.total, quote.currency, organization?.decimalSeparator)}</td>
                             <td><span className={`${styles.status} ${styles['status_' + quote.status]}`}>
                                 {(dict.quotes.status as any)[quote.status] || quote.status}
                             </span></td>
