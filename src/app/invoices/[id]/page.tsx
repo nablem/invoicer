@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import InvoiceForm from "@/components/InvoiceForm";
 import styles from "../page.module.css";
 import { getDictionary } from "@/lib/i18n";
+import { getAvailableTemplates } from "@/actions/templates";
 import SplitButton from "@/components/SplitButton";
 import { updateInvoiceStatus as updateStatus } from "@/actions/invoices";
 
@@ -60,6 +61,7 @@ export default async function EditInvoicePage({ params }: PageProps) {
                             { action: updateStatus.bind(null, invoice.id, "CANCELLED"), label: dict.invoices.mark_as_cancelled }
                         ]}
                         color="default"
+                        mainTarget="_blank"
                     />
                 </div>
             </div>
@@ -80,6 +82,8 @@ export default async function EditInvoicePage({ params }: PageProps) {
                 retainerInvoiceNumber={invoice.retainerInvoice?.number}
                 currency={invoice.currency}
                 decimalSeparator={organization?.decimalSeparator}
+                availableTemplates={await getAvailableTemplates("invoice")}
+                defaultTemplate={organization?.invoiceTemplate || "invoice"}
             />
         </div>
     );

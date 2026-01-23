@@ -75,6 +75,7 @@ export async function createInvoice(formData: FormData) {
     const isBalance = formData.get("isBalance") === "on";
     const retainerInvoiceId = formData.get("retainerInvoiceId") as string || undefined;
     const retainerDeductionAmount = parseFloat(formData.get("retainerDeductionAmount") as string || "0");
+    const template = formData.get("template") as string || undefined;
 
     if (!clientId) throw new Error("Client ID is required");
     if (isRetainer && !quoteId) throw new Error("Quote is required for retainer invoices");
@@ -140,6 +141,7 @@ export async function createInvoice(formData: FormData) {
                     notes,
                     total,
                     currency: organization?.currency || "EUR",
+                    template: template,
                     isRecurring,
                     recurringInterval: isRecurring ? recurringInterval : undefined,
                     isRetainer,
@@ -185,6 +187,7 @@ export async function updateInvoice(id: string, formData: FormData) {
     const isBalance = formData.get("isBalance") === "on";
     const retainerInvoiceId = formData.get("retainerInvoiceId") as string || null;
     const retainerDeductionAmount = parseFloat(formData.get("retainerDeductionAmount") as string || "0");
+    const template = formData.get("template") as string || null;
 
     const items = parseItems(formData);
     const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
@@ -210,6 +213,7 @@ export async function updateInvoice(id: string, formData: FormData) {
                 isBalance,
                 retainerInvoiceId: isBalance ? retainerInvoiceId : undefined,
                 retainerDeductionAmount: isBalance ? retainerDeductionAmount : undefined,
+                template,
                 total,
                 items: {
                     create: items.map((item) => ({

@@ -4,7 +4,7 @@ import { createQuote, updateQuote } from "@/actions/quotes";
 import { searchClients } from "@/actions/search";
 import Combobox from "@/components/Combobox";
 import styles from "./QuoteForm.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Dictionary } from "@/lib/dictionaries";
 import SmartTextarea from "./SmartTextarea";
@@ -30,6 +30,7 @@ interface QuoteFormProps {
         number: string;
         items: FormItem[];
         notes: string | null;
+        template?: string | null;
     };
     dict: Dictionary;
     convertAction?: any;
@@ -37,9 +38,11 @@ interface QuoteFormProps {
     defaultVat: number;
     currency?: string;
     decimalSeparator?: string;
+    availableTemplates?: string[];
+    defaultTemplate?: string;
 }
 
-export default function QuoteForm({ clients, quote, dict, convertAction, readOnly, defaultVat, currency = "EUR", decimalSeparator = "," }: QuoteFormProps) {
+export default function QuoteForm({ clients, quote, dict, convertAction, readOnly, defaultVat, currency = "EUR", decimalSeparator = ",", availableTemplates = [], defaultTemplate = "quote" }: QuoteFormProps) {
     const isEditing = !!quote;
     const action = isEditing ? updateQuote.bind(null, quote.id) : createQuote;
 
@@ -52,6 +55,15 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
     const [items, setItems] = useState<FormItem[]>(
         quote?.items.map(i => ({ ...i, vat: (i as any).vat ?? 0 })) || [{ title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]
     );
+
+    useEffect(() => {
+        if (quote) {
+            setItems(quote.items.map(i => ({ ...i, vat: (i as any).vat ?? 0 })));
+        } else {
+            // When switching to create mode (if reused) or resetting
+            setItems([{ title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
+        }
+    }, [quote, defaultVat]);
 
     const addItem = () => {
         setItems([...items, { title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
@@ -135,6 +147,24 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                         className={styles.input}
                         disabled={readOnly}
                     />
+                </div>
+            </div>
+
+
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label className={styles.label}>{dict.settings.form.templates.quote_pdf}</label>
+                    <select
+                        key={quote?.template || "default"}
+                        name="template"
+                        defaultValue={quote?.template || defaultTemplate}
+                        className={styles.input}
+                        disabled={readOnly}
+                    >
+                        {availableTemplates.map(t => (
+                            <option key={t} value={t}>{t}</option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
@@ -267,6 +297,6 @@ export default function QuoteForm({ clients, quote, dict, convertAction, readOnl
                     </button>
                 )}
             </div>
-        </form>
+        </form >
     );
 }

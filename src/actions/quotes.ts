@@ -56,6 +56,7 @@ export async function createQuote(formData: FormData) {
     const dueDateStr = formData.get("dueDate") as string;
     const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
     const notes = formData.get("notes") as string;
+    const template = formData.get("template") as string || undefined;
 
     const items = parseItems(formData);
 
@@ -93,6 +94,7 @@ export async function createQuote(formData: FormData) {
                     notes,
                     total,
                     currency: organization?.currency || "EUR",
+                    template: template,
                     items: {
                         create: items.map((item) => ({
                             title: item.title,
@@ -123,6 +125,7 @@ export async function updateQuote(id: string, formData: FormData) {
     const dueDateStr = formData.get("dueDate") as string;
     const dueDate = dueDateStr ? new Date(dueDateStr) : undefined;
     const notes = formData.get("notes") as string;
+    const template = formData.get("template") as string || null;
 
     const items = parseItems(formData);
     const total = items.reduce((acc, item) => acc + (item.quantity * item.price * (1 + (item.vat || 0) / 100)), 0);
@@ -142,6 +145,7 @@ export async function updateQuote(id: string, formData: FormData) {
                 date,
                 dueDate,
                 notes,
+                template,
                 total,
                 items: {
                     create: items.map((item) => ({

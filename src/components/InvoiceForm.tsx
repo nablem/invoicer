@@ -6,7 +6,7 @@ import { getRetainerDetails, searchRetainerInvoices } from "@/actions/retainers"
 import { searchClients, searchQuotes } from "@/actions/search";
 import Combobox from "@/components/Combobox";
 import styles from "./InvoiceForm.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Dictionary } from "@/lib/dictionaries";
 import SmartTextarea from "./SmartTextarea";
@@ -40,7 +40,9 @@ interface InvoiceFormProps {
         retainerPercentage: number | null;
         isBalance: boolean;
         retainerInvoiceId: string | null;
+
         retainerDeductionAmount: number | null;
+        template?: string | null;
     };
     retainerInvoiceNumber?: string;
     dict: Dictionary;
@@ -49,9 +51,11 @@ interface InvoiceFormProps {
     title?: string;
     currency?: string;
     decimalSeparator?: string;
+    availableTemplates?: string[];
+    defaultTemplate?: string;
 }
 
-export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat, title, currency = "EUR", decimalSeparator = "," }: InvoiceFormProps) {
+export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceNumber, dict, readOnly, defaultVat, title, currency = "EUR", decimalSeparator = ",", availableTemplates = [], defaultTemplate = "invoice" }: InvoiceFormProps) {
     const isEditing = !!invoice;
     const action = isEditing ? updateInvoice.bind(null, invoice.id) : createInvoice;
 
@@ -73,6 +77,32 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
     const [selectedRetainerId, setSelectedRetainerId] = useState<string | undefined>(invoice?.retainerInvoiceId || undefined);
     const [retainerDeductionAmount, setRetainerDeductionAmount] = useState<number>(invoice?.retainerDeductionAmount || 0);
     const [currentRetainerNumber, setCurrentRetainerNumber] = useState<string | undefined>(retainerInvoiceNumber);
+
+    useEffect(() => {
+        if (invoice) {
+            setItems(invoice.items.map(i => ({ ...i, vat: (i as any).vat ?? 0 })));
+            setIsRecurring(invoice.isRecurring);
+            setIsRetainer(invoice.isRetainer);
+            setIsBalance(invoice.isBalance);
+            setRetainerPercentage(invoice.retainerPercentage || 30);
+            setSelectedQuoteId(invoice.quoteId || undefined);
+            setSelectedClientId(invoice.clientId);
+            setSelectedRetainerId(invoice.retainerInvoiceId || undefined);
+            setRetainerDeductionAmount(invoice.retainerDeductionAmount || 0);
+        } else {
+            // Reset for create mode
+            setItems([{ title: "", description: "", quantity: 1, price: 0, vat: defaultVat, total: 0 }]);
+            setIsRecurring(false);
+            setIsRetainer(false);
+            setIsBalance(false);
+            setRetainerPercentage(30);
+            setSelectedQuoteId(undefined);
+            setSelectedClientId(undefined);
+            setSelectedRetainerId(undefined);
+            setRetainerDeductionAmount(0);
+        }
+        setCurrentRetainerNumber(retainerInvoiceNumber);
+    }, [invoice, defaultVat, retainerInvoiceNumber]);
 
     // ... (keep generic handlers) ...
     // Note: I will replace the top section to inject state, and handleSubmit
@@ -479,6 +509,23 @@ export default function InvoiceForm({ clients, quotes, invoice, retainerInvoiceN
                     </select>
                 </div>
             )}
+
+            <div className={styles.row}>
+                <div className={styles.group}>
+                    <label className={styles.label}>{dict.settings.form.templates.invoice_pdf}</label>
+                    <select
+                        key={invoice?.template || "default"}
+                        name="template"
+                        defaultValue={invoice?.template || defaultTemplate}
+                        className={styles.input}
+                        disabled={readOnly}
+                    >
+                        {availableTemplates.map(t => (
+                            <option key={t} value={t}>{t}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
             <div className={styles.itemsSection}>
                 <h3>{dict.quotes.form.items_section}</h3>

@@ -2,6 +2,7 @@ import InvoiceForm from "@/components/InvoiceForm";
 import { prisma } from "@/lib/prisma";
 import styles from "../../page.module.css";
 import { getDictionary } from "@/lib/i18n";
+import { getAvailableTemplates } from "@/actions/templates";
 
 export default async function NewInvoicePage() {
     const { dict } = await getDictionary();
@@ -15,6 +16,7 @@ export default async function NewInvoicePage() {
     });
 
     const organization = await prisma.organization.findFirst();
+    const availableTemplates = await getAvailableTemplates("invoice");
 
     return (
         <div className={styles.container}>
@@ -26,6 +28,8 @@ export default async function NewInvoicePage() {
                 title={dict.invoices.new_invoice}
                 currency={organization?.currency || "EUR"}
                 decimalSeparator={organization?.decimalSeparator}
+                availableTemplates={availableTemplates}
+                defaultTemplate={organization?.invoiceTemplate || "invoice"}
             />
         </div>
     );

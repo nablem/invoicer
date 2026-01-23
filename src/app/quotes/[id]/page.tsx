@@ -7,6 +7,7 @@ import SplitButton from "@/components/SplitButton";
 import { createInvoiceFromQuote } from "@/actions/invoices";
 import { updateQuoteStatus as updateStatus } from "@/actions/quotes";
 import { getDictionary } from "@/lib/i18n";
+import { getAvailableTemplates } from "@/actions/templates";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -55,6 +56,7 @@ export default async function EditQuotePage({ params }: PageProps) {
                             { action: updateStatus.bind(null, quote.id, "REJECTED"), label: dict.quotes.mark_as_rejected }
                         ]}
                         color="default"
+                        mainTarget="_blank"
                     />
                 </div>
             </div>
@@ -74,6 +76,8 @@ export default async function EditQuotePage({ params }: PageProps) {
                 defaultVat={organization?.defaultVat || 0}
                 currency={quote.currency}
                 decimalSeparator={organization?.decimalSeparator}
+                availableTemplates={await getAvailableTemplates("quote")}
+                defaultTemplate={organization?.quoteTemplate || "quote"}
             />
         </div>
     );

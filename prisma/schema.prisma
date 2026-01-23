@@ -39,6 +39,7 @@ model Quote {
   items     QuoteItem[]
   total     Float       @default(0)
   currency  String      @default("EUR")
+  template  String?
   notes     String?
   invoices  Invoice[]   @relation("QuoteToInvoice")
   createdAt DateTime    @default(now())
@@ -70,6 +71,7 @@ model Invoice {
   items            InvoiceItem[]
   total            Float      @default(0)
   currency         String     @default("EUR")
+  template         String?
   notes            String?
   
   // Recurring logic

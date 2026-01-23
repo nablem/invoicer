@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import QuoteForm from "@/components/QuoteForm";
 import styles from "../../page.module.css";
 import { getDictionary } from "@/lib/i18n";
+import { getAvailableTemplates } from "@/actions/templates";
 
 export default async function NewQuotePage() {
     const { dict } = await getDictionary();
@@ -11,11 +12,20 @@ export default async function NewQuotePage() {
     });
 
     const organization = await prisma.organization.findFirst();
+    const availableTemplates = await getAvailableTemplates("quote");
 
     return (
         <div className={styles.container}>
             <h1 className={styles.title} style={{ marginBottom: "2rem" }}>{dict.quotes.new_quote}</h1>
-            <QuoteForm clients={clients} dict={dict} defaultVat={organization?.defaultVat || 0} currency={organization?.currency || "EUR"} decimalSeparator={organization?.decimalSeparator} />
+            <QuoteForm
+                clients={clients}
+                dict={dict}
+                defaultVat={organization?.defaultVat || 0}
+                currency={organization?.currency || "EUR"}
+                decimalSeparator={organization?.decimalSeparator}
+                availableTemplates={availableTemplates}
+                defaultTemplate={organization?.quoteTemplate || "quote"}
+            />
         </div>
     );
 }
