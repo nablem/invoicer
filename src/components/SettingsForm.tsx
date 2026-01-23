@@ -266,34 +266,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                             </select>
                         </div>
                     </div>
-                    <div className={styles.row}>
-                        <div className={styles.group}>
-                            <label className={styles.label}>{dict.settings.form.templates.invoice_email}</label>
-                            <select
-                                key={`email-invoice-${organization?.invoiceEmailTemplate}`}
-                                name="invoiceEmailTemplate"
-                                defaultValue={organization?.invoiceEmailTemplate || "standard"}
-                                className={styles.input}
-                            >
-                                {availableTemplates.emailInvoice.map(t => (
-                                    <option key={t} value={t}>{t}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={styles.group}>
-                            <label className={styles.label}>{dict.settings.form.templates.quote_email}</label>
-                            <select
-                                key={`email-quote-${organization?.quoteEmailTemplate}`}
-                                name="quoteEmailTemplate"
-                                defaultValue={organization?.quoteEmailTemplate || "standard"}
-                                className={styles.input}
-                            >
-                                {availableTemplates.emailQuote.map(t => (
-                                    <option key={t} value={t}>{t}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* Numbering Section */}
