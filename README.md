@@ -93,30 +93,5 @@ The project includes a production-ready Docker Compose configuration (`docker-co
 
 **rsync command**
 ```bash
-rsync -avz --filter=':- .gitignore' --include='.env' --include='.*.html' ./ sandbox:/opt/invoicer/ && ssh sandbox "cd /opt/invoicer && docker compose -f docker-compose.prod.yml up -d --build"
+rsync -avz --filter=':- .gitignore' --include='.env' --include='.*.html' ./ root@IP:/opt/invoicer/ && ssh root@IP "cd /opt/invoicer && docker compose -f docker-compose.prod.yml up -d --build"
 ```
-
-1.  **Identify Existing Infrastructure**:
-    You must know the name of the Docker network your existing Traefik instance uses, and the name of its certificate resolver.
-    *   Find the network name: `docker network ls` (look for something like `proxy`, `web`, or `traefik_public`).
-    *   Find the resolver name: Check your existing Traefik configuration (commonly `le`, `letsencrypt`, or `myresolver`).
-
-2.  **DNS Configuration**:
-    Point your domain (e.g., `invoicer.lemenuel.com`) to your server's public IP address.
-
-3.  **Configuration**:
-    Create a `.env` file in the same directory as `docker-compose.prod.yml` or export these variables:
-    
-    ```bash
-    TRAEFIK_NETWORK=proxy          # The name of your existing Traefik network
-    TRAEFIK_CERT_RESOLVER=myresolver # The name of your existing cert resolver
-    ```
-
-4.  **Start the Stack**:
-    Run the following command to build and start the services:
-    ```bash
-    docker compose -f docker-compose.prod.yml up -d --build
-    ```
-
-5.  **Verify**:
-    Your application should now be accessible at `https://invoicer.lemenuel.com` with a valid SSL certificate.
