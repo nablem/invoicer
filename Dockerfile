@@ -16,6 +16,13 @@ RUN npx prisma generate
 ENV DATABASE_URL="file:./build.db"
 RUN npx prisma db push
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Pass build args
+ARG INVOICER_URL_PREFIX
+ARG NEXT_PUBLIC_INVOICER_URL_PREFIX
+ENV INVOICER_URL_PREFIX=$INVOICER_URL_PREFIX
+ENV NEXT_PUBLIC_INVOICER_URL_PREFIX=$NEXT_PUBLIC_INVOICER_URL_PREFIX
+
 RUN npm run build
 
 # --- Étape 3 : Runner ---
@@ -34,7 +41,7 @@ RUN adduser --system --uid 1001 nextjs
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 # 1. Copie du moteur Next.js
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
