@@ -1,19 +1,17 @@
 # Invoicing Platform
 
-A modern, self-hostable invoicing application built with Next.js, Prisma, and TypeScript. This platform helps freelancers and small businesses manage clients, send quotes, and issue invoices with ease.
+A modern, self-hostable invoicing application built with Next.js, Prisma, and TypeScript. This platform allows you to manage clients, create quotes and invoices, and download them as PDF documents using customizable templates.
 
 ## Key Features
 
 -   **Client Management**: Maintain a database of your clients with all necessary contact and billing information.
 -   **Quotes & Invoices**: Create and manage professional quotes and invoices.
 -   **Custom Invoice Numbering**: Set up advanced invoice sequencing, including monthly and yearly resets.
--   **PDF Generation**: Automatically generate PDF documents for quotes and invoices using Gotenberg.
+-   **PDF Generation**: Automatically generate PDF documents for quotes and invoices using Gotenberg based on customizable HTML templates.
 -   **Recurring Invoices**: Set up invoices to be generated automatically on a recurring schedule.
 -   **Retainer & Balance Invoicing**: Easily manage retainer-based projects with initial retainer invoices and final balance invoices.
 -   **Quote-to-Invoice Conversion**: Convert an accepted quote into an invoice with a single click.
--   **Email Integration**: Send invoices and quotes directly to clients from the application, with an integrated email testing tool (MailDev).
 -   **Multi-Language Support**: The UI supports multiple languages (currently English and French).
--   **DocuSeal Integration (Optional)**: Seamlessly integrate with DocuSeal for e-signing of quotes and invoices.
 
 ## Getting Started
 
@@ -27,7 +25,7 @@ Follow these instructions to get the project running on your local machine for d
 ### Development Setup
 
 1.  **Start Background Services**:
-    This application requires Gotenberg for PDF generation and MailDev for email testing. Start them using Docker Compose:
+    This application requires Gotenberg for PDF generation. Start it using Docker Compose:
     ```bash
     docker-compose up -d
     ```
@@ -38,13 +36,13 @@ Follow these instructions to get the project running on your local machine for d
     ```
 
 3.  **Set Up Environment Variables**:
-    Create a `.env` file in the root of the project. This file will store your database connection string.
+    Create a `.env` file in the root of the project. This file will store your database connection string and other configurations.
     ```env
     DATABASE_URL="file:./prisma/dev.db"
     ```
 
 4.  **Sync Database Schema**:
-    Push the database schema directly to the database. This project uses a schema-first workflow and avoids using migration files for simplicity during development.
+    Push the database schema directly to the database. This project uses a schema-first workflow.
     ```bash
     npx prisma db push
     ```
@@ -56,10 +54,12 @@ Follow these instructions to get the project running on your local machine for d
     ```
     The application will be available at [http://localhost:3000](http://localhost:3000).
 
-### Production Setup
+### Production Setup (Local Testing)
+
+To test the application in a production-like environment locally:
 
 1.  **Start Background Services**:
-    Just like in development, the background services are required.
+    Ensure Gotenberg is running:
     ```bash
     docker-compose up -d
     ```
@@ -70,10 +70,7 @@ Follow these instructions to get the project running on your local machine for d
     ```
 
 3.  **Set Up Environment Variables**:
-    Create a `.env` file for your production configuration.
-    ```env
-    DATABASE_URL="file:./prisma/dev.db"
-    ```
+    Ensure your `.env` file is configured (e.g., `DATABASE_URL`).
 
 4.  **Sync Database Schema**:
     ```bash
@@ -81,8 +78,9 @@ Follow these instructions to get the project running on your local machine for d
     ```
 
 5.  **Build and Start the Application**:
-    Build the application for production and start the server.
+    Build the application for production and start the server. This simulates the production environment by optimizing the build.
     ```bash
     npm run build
     npm run start
     ```
+    The application will be available at [http://localhost:3000](http://localhost:3000).
