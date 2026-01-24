@@ -27,7 +27,7 @@ Follow these instructions to get the project running on your local machine for d
 1.  **Start Background Services**:
     This application requires Gotenberg for PDF generation. Start it using Docker Compose:
     ```bash
-    docker compose up -d
+    docker-compose up -d
     ```
 
 2.  **Install Dependencies**:
@@ -87,29 +87,24 @@ To test the application in a production-like environment locally:
 
 ## Production Deployment (Server)
 
-The project includes a production-ready Docker Compose configuration (`docker-compose.prod.yml`) that sets up:
-
-*   **Traefik**: A reverse proxy that handles SSL termination (Let's Encrypt) and routing.
-*   **The App**: The Next.js application running in standalone mode.
-*   **Gotenberg**: The PDF generation service.
-*   **Migrator**: An automatic database migration service.
+The project includes a production-ready Docker Compose configuration (`docker-compose.prod.yml`) designed to integrate with an **existing Traefik reverse proxy**.
 
 ### Deployment Steps
 
-1.  **DNS Configuration**:
+1.  **Identify Existing Infrastructure**:
+    You must know the name of the Docker network your existing Traefik instance uses, and the name of its certificate resolver.
+    *   Find the network name: `docker network ls` (look for something like `proxy`, `web`, or `traefik_public`).
+    *   Find the resolver name: Check your existing Traefik configuration (commonly `le`, `letsencrypt`, or `myresolver`).
+
+2.  **DNS Configuration**:
     Point your domain (e.g., `invoicer.lemenuel.com`) to your server's public IP address.
 
-2.  **Configuration**:
-    Edit `docker-compose.prod.yml` if you need to change the domain name or the Let's Encrypt email address.
-    *   `traefik.http.routers.app.rule`
-    *   `--certificatesresolvers.myresolver.acme.email`
-
-3.  **Prepare SSL Storage**:
-    Create a directory for Let's Encrypt certificates and set the correct permissions (required for Traefik):
+3.  **Configuration**:
+    Create a `.env` file in the same directory as `docker-compose.prod.yml` or export these variables:
+    
     ```bash
-    mkdir -p letsencrypt
-    touch letsencrypt/acme.json
-    chmod 600 letsencrypt/acme.json
+    TRAEFIK_NETWORK=proxy          # The name of your existing Traefik network
+    TRAEFIK_CERT_RESOLVER=myresolver # The name of your existing cert resolver
     ```
 
 4.  **Start the Stack**:
@@ -120,4 +115,3 @@ The project includes a production-ready Docker Compose configuration (`docker-co
 
 5.  **Verify**:
     Your application should now be accessible at `https://invoicer.lemenuel.com` with a valid SSL certificate.
-    Database data is persisted in the `billing_data` volume.
