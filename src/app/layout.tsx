@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
     title: "Freelance Billing",
     description: "Manage clients, quotes, and bills",
+    robots: {
+        index: false,
+        follow: false,
+    },
 };
 
 export default function RootLayout({
