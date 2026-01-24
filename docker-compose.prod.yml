@@ -6,8 +6,7 @@ services:
     container_name: "invoicer_app"
     restart: unless-stopped
     environment:
-      # Use a file-based sqlite database in the persistent volume
-      - DATABASE_URL=file:/app/data/prod.db
+      - DATABASE_URL=${DATABASE_URL}
       - GOTENBERG_URL=http://gotenberg:3000
     networks:
       - default
@@ -19,33 +18,19 @@ services:
       - "traefik.http.routers.invoicer-app.rule=Host(`${HOST}`)"
       - "traefik.http.routers.invoicer-app.entrypoints=websecure"
       - "traefik.http.routers.invoicer-app.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-myresolver}"
-    depends_on:
-      gotenberg:
-        condition: service_started
-      migrator:
-        condition: service_completed_successfully
-
-  migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: builder
-    container_name: "invoicer_migrator"
-    environment:
-      - DATABASE_URL=file:/app/data/prod.db
-    volumes:
-      - "billing_data:/app/data"
-    command: npx prisma migrate deploy
+      - "traefik.http.services.invoicer-app.loadbalancer.server.port=3000"
 
   gotenberg:
     image: "gotenberg/gotenberg:8"
     container_name: "invoicer_gotenberg"
     restart: unless-stopped
+    networks:
+      - default
 
 networks:
   traefik_network:
     external: true
-    name: ${TRAEFIK_NETWORK:-proxy}
+    name: ${TRAEFIK_NETWORK}
 
 volumes:
   billing_data:
