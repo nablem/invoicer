@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getDictionary } from "@/lib/i18n";
-import styles from "@/app/page.module.css"; // Reuse global or create specific? reusing global/inline for consistency with dashboard
+import styles from "@/app/(main)/page.module.css"; // Reuse global or create specific? reusing global/inline for consistency with dashboard
 import { formatPrice } from "@/lib/format";
 
 interface PageProps {
