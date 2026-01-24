@@ -1,0 +1,67 @@
+services:
+  traefik:
+    image: "traefik:v3.0"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Redirect HTTP to HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${EMAIL_SSL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      # - "8080:8080" # Web UI
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "invoicer_app"
+    restart: unless-stopped
+    environment:
+      # Use a file-based sqlite database in the persistent volume
+      - DATABASE_URL=file:/app/data/prod.db
+      - GOTENBERG_URL=http://gotenberg:3000
+    volumes:
+      - "billing_data:/app/data"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`invoicer.lemenuel.com`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=myresolver"
+    depends_on:
+      gotenberg:
+        condition: service_started
+      migrator:
+        condition: service_completed_successfully
+
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: "invoicer_migrator"
+    environment:
+      - DATABASE_URL=file:/app/data/prod.db
+    volumes:
+      - "billing_data:/app/data"
+    command: npx prisma migrate deploy
+
+  gotenberg:
+    image: "gotenberg/gotenberg:8"
+    container_name: "invoicer_gotenberg"
+    restart: unless-stopped
+
+volumes:
+  billing_data:
