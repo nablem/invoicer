@@ -49,5 +49,5 @@ next-env.d.ts
 # migration
 migrations/
 
-# vanilla
-mini/
+# backups/
+backups/
