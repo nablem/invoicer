@@ -3,11 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INVOICER_URL_PREFIX: ${INVOICER_URL_PREFIX}
+        NEXT_PUBLIC_INVOICER_URL_PREFIX: ${NEXT_PUBLIC_INVOICER_URL_PREFIX}
     container_name: "invoicer_app"
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - GOTENBERG_URL=http://gotenberg:3000
+      - INVOICER_URL_PREFIX=${INVOICER_URL_PREFIX}
+      - NEXT_PUBLIC_INVOICER_URL_PREFIX=${NEXT_PUBLIC_INVOICER_URL_PREFIX}
     networks:
       - default
       - traefik_network
@@ -16,7 +21,7 @@ services:
       - "./src/templates:/app/src/templates"                    
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network={TRAEFIK_NETWORK}"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.invoicer-app.rule=Host(`${HOST}`)"
       - "traefik.http.routers.invoicer-app.entrypoints=websecure"
       - "traefik.http.routers.invoicer-app.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
