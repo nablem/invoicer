@@ -18,7 +18,8 @@ services:
       - traefik_network
     volumes:
       - "billing_data:/app/data"
-      - "./src/templates:/app/src/templates"                    
+      - "./src/templates:/app/src/templates"
+      - "./public/uploads:/app/public/uploads"                    
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
