@@ -130,7 +130,7 @@ export default function SplitButton({ mainAction, mainHref, mainLabel, dropdownI
                         position: "absolute",
                         top: "100%",
                         right: 0,
-                        zIndex: 10,
+                        zIndex: 2000,
                         background: "var(--background)",
                         border: "1px solid var(--border)",
                         borderRadius: "4px",
