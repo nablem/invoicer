@@ -91,6 +91,11 @@ The project includes a production-ready Docker Compose configuration (`docker-co
 
 ### Deployment Steps
 
+**rsync command**
+```bash
+rsync -avz --filter=':- .gitignore' --include='.env' --include='.*.html' ./ sandbox:/opt/invoicer/ && ssh sandbox "cd /opt/invoicer && docker compose -f docker-compose.prod.yml up -d --build"
+```
+
 1.  **Identify Existing Infrastructure**:
     You must know the name of the Docker network your existing Traefik instance uses, and the name of its certificate resolver.
     *   Find the network name: `docker network ls` (look for something like `proxy`, `web`, or `traefik_public`).
