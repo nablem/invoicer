@@ -194,3 +194,77 @@ export async function getQuoteDetails(id: string) {
     });
     return quote;
 }
+
+export async function duplicateQuote(id: string) {
+    const quote = await prisma.quote.findUnique({
+        where: { id },
+        include: { items: true }
+    });
+
+    if (!quote) {
+        throw new Error("Quote not found");
+    }
+
+    let newQuote;
+    try {
+        newQuote = await prisma.$transaction(async (tx) => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const prefix = `D${year}${month}`;
+
+            const lastQuote = await tx.quote.findFirst({
+                where: { number: { startsWith: prefix } },
+                orderBy: { number: 'desc' },
+            });
+
+            let nextSequence = 11;
+            if (lastQuote) {
+                const lastSequence = parseInt(lastQuote.number.substring(7), 10);
+                nextSequence = isNaN(lastSequence) ? 11 : lastSequence + 1;
+            }
+
+            const number = `${prefix}${nextSequence}`;
+
+            // Calculate new Due Date (default 30 days if not set, or keep relative difference? original request said "everything is copied")
+            // "everything is copied and a new draft document is created" -> usually implies meaningful dates for the NEW document.
+            // Let's set date to NOW, and due date to NOW + (original due date - original date) OR default 30 days.
+            // Using standard creation logic is safer: Date = Now, DueDate = Now + 30 days (or whatever the standard is).
+            // Let's stick to simple: Date = Now, DueDate = Now + 30 days for now, or copy the timeframe.
+            // Actually, usually users want the *content* duplicated.
+            const date = new Date();
+            const dueDate = new Date(date);
+            dueDate.setDate(date.getDate() + 30); // Default 30 days validity for new quote
+
+            return await tx.quote.create({
+                data: {
+                    number,
+                    clientId: quote.clientId,
+                    date: date,
+                    dueDate: dueDate,
+                    notes: quote.notes,
+                    total: quote.total,
+                    currency: quote.currency,
+                    template: quote.template,
+                    status: "DRAFT",
+                    items: {
+                        create: quote.items.map((item) => ({
+                            title: item.title,
+                            description: item.description,
+                            quantity: item.quantity,
+                            price: item.price,
+                            vat: item.vat,
+                            total: item.total,
+                        })),
+                    },
+                },
+            });
+        });
+    } catch (error) {
+        console.error("Failed to duplicate quote:", error);
+        throw new Error("Failed to duplicate quote.");
+    }
+
+    revalidatePath("/quotes");
+    redirect(`/quotes/${newQuote.id}`);
+}

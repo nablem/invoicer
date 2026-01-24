@@ -341,3 +341,109 @@ export async function createInvoiceFromQuote(quoteId: string) {
         throw error;
     }
 }
+
+export async function duplicateInvoice(id: string) {
+    const invoice = await prisma.invoice.findUnique({
+        where: { id },
+        include: { items: true }
+    });
+
+    if (!invoice) {
+        throw new Error("Invoice not found");
+    }
+
+    if (invoice.isRetainer || invoice.isBalance) {
+        throw new Error("Cannot duplicate Retainer or Balance invoices");
+    }
+
+    try {
+        const newInvoice = await prisma.$transaction(async (tx) => {
+            const organization = await tx.organization.findFirst();
+
+            let number = `INV-${Date.now()}`;
+            let currentSequence = 1;
+
+            if (organization) {
+                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+
+                if (invoiceIncludeYear || invoiceIncludeMonth) {
+                    const now = new Date();
+                    const startOfPeriod = new Date(now.getFullYear(), organization.invoiceIncludeMonth ? now.getMonth() : 0, 1);
+                    const endOfPeriod = new Date(now.getFullYear(), organization.invoiceIncludeMonth ? now.getMonth() + 1 : 12, 0);
+
+                    const invoicesInPeriod = await tx.invoice.count({
+                        where: {
+                            createdAt: {
+                                gte: startOfPeriod,
+                                lt: endOfPeriod,
+                            },
+                        },
+                    });
+
+                    if (invoicesInPeriod === 0) {
+                        currentSequence = 1;
+                    } else {
+                        currentSequence = invoiceSequence;
+                    }
+                } else {
+                    currentSequence = invoiceSequence;
+                }
+
+                const yearPart = invoiceIncludeYear ? new Date().getFullYear().toString() : "";
+                const monthPart = invoiceIncludeMonth ? (new Date().getMonth() + 1).toString().padStart(2, '0') : "";
+                const sequencePart = currentSequence.toString().padStart(invoiceDigits, '0');
+
+                number = `${invoiceIncludePrefix ? invoicePrefix : ''}${yearPart}${monthPart}${sequencePart}`;
+
+                await tx.organization.update({
+                    where: { id: organization.id },
+                    data: { invoiceSequence: currentSequence + 1 },
+                });
+            }
+
+            const date = new Date();
+            const dueDate = new Date(date);
+            dueDate.setDate(date.getDate() + 30); // Default 30 days
+
+            return await tx.invoice.create({
+                data: {
+                    number,
+                    clientId: invoice.clientId,
+                    date,
+                    dueDate,
+                    notes: invoice.notes,
+                    total: invoice.total,
+                    currency: invoice.currency,
+                    template: invoice.template,
+                    status: "DRAFT",
+                    isRecurring: invoice.isRecurring,
+                    recurringInterval: invoice.recurringInterval,
+                    // Explicitly not copying Retainer/Balance fields as they are forbidden
+                    isRetainer: false,
+                    isBalance: false,
+                    items: {
+                        create: invoice.items.map((item) => ({
+                            title: item.title,
+                            description: item.description,
+                            quantity: item.quantity,
+                            price: item.price,
+                            vat: item.vat,
+                            total: item.total,
+                        })),
+                    },
+                },
+            });
+        });
+
+        revalidatePath("/invoices");
+        redirect(`/invoices/${newInvoice.id}`);
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            // In case of sequence collision, we might want to retry or just let the user try again
+            // For now, rethrow or handle same as create
+            throw new Error("DUPLICATE_NUMBER");
+        }
+        console.error("Failed to duplicate invoice:", error);
+        throw error;
+    }
+}

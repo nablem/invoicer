@@ -16,6 +16,7 @@ export const fr = {
         status: "Statut",
         date: "Date",
         saved: "Enregistré",
+        duplicate: "Dupliquer",
     },
     dashboard: {
         title: "Tableau de Bord",
@@ -224,6 +225,7 @@ export const en: Dictionary = {
         status: "Status",
         date: "Date",
         saved: "Saved",
+        duplicate: "Duplicate",
     },
     dashboard: {
         title: "Dashboard",

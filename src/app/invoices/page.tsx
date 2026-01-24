@@ -101,7 +101,12 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                                 {(dict.invoices.status as any)[invoice.status] || invoice.status}
                             </span></td>
                             <td>
-                                <InvoiceActions id={invoice.id} dict={dict} />
+                                <InvoiceActions
+                                    id={invoice.id}
+                                    dict={dict}
+                                    isRetainer={invoice.isRetainer}
+                                    isBalance={invoice.isBalance}
+                                />
                             </td>
                         </tr>
                     ))}
