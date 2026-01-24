@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  basePath: process.env.INVOICER_URL_PREFIX,
   webpack: (config) => {
     config.watchOptions = {
       ...config.watchOptions,

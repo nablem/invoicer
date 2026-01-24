@@ -22,7 +22,7 @@ export default function Navbar({ dict, lang, organization }: { dict: Dictionary;
         {organization?.logoUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={organization.logoUrl}
+            src={`${process.env.NEXT_PUBLIC_INVOICER_URL_PREFIX || ""}${organization.logoUrl}`}
             alt="Organization Logo"
             style={{ height: '32px', width: 'auto', marginRight: '0.75rem', borderRadius: '4px' }}
           />

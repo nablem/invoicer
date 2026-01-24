@@ -438,7 +438,13 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                     <label className={styles.label}>{dict.settings.form.logo}</label>
                     <input type="file" accept="image/*" onChange={handleLogoChange} className={styles.input} />
                     {previewUrl && (
-                        <img src={previewUrl} alt="Logo Preview" className={styles.preview} />
+                        <img
+                            src={previewUrl.startsWith("blob:") || previewUrl.startsWith("http")
+                                ? previewUrl
+                                : `${process.env.NEXT_PUBLIC_INVOICER_URL_PREFIX || ""}${previewUrl}`}
+                            alt="Logo Preview"
+                            className={styles.preview}
+                        />
                     )}
                 </div>
             </div>
