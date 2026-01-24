@@ -93,5 +93,5 @@ The project includes a production-ready Docker Compose configuration (`docker-co
 
 **rsync command**
 ```bash
-rsync -avz --filter=':- .gitignore' --include='.env' --include='.*.html' ./ root@IP:/opt/invoicer/ && ssh root@IP "cd /opt/invoicer && docker compose -f docker-compose.prod.yml up -d --build"
+rsync -avz --filter=':- .gitignore' --exclude '.git/' --include='.env' --include='.*.html' ./ root@IP:/opt/invoicer/ && ssh root@IP "cd /opt/invoicer && docker compose -f docker-compose.prod.yml up -d --build"
 ```
