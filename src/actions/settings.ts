@@ -36,13 +36,14 @@ export async function updateOrganization(formData: FormData) {
         const filename = `logo-${Date.now()}.png`; // Force PNG extension as we assume canvas conversion
         const uploadDir = path.join(process.cwd(), "public", "uploads");
 
-        try {
-            await mkdir(uploadDir, { recursive: true });
-            await writeFile(path.join(uploadDir, filename), buffer);
-            logoUrl = `/uploads/${filename}`;
-        } catch (error) {
-            console.error("Error saving logo:", error);
-        }
+        // Ensure upload directory exists
+        await mkdir(uploadDir, { recursive: true });
+
+        // Write file
+        await writeFile(path.join(uploadDir, filename), buffer);
+        logoUrl = `/uploads/${filename}`;
+
+        // Removed try-catch to allow error to bubble up if write fails
     }
 
     // Check if organization exists

@@ -12,12 +12,14 @@
     "@prisma/client": "^5.22.0",
     "handlebars": "^4.7.8",
     "lodash.debounce": "^4.0.8",
+    "mime": "^4.1.0",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9",
+    "@types/mime": "^3.0.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
