@@ -8,37 +8,33 @@ services:
         NEXT_PUBLIC_INVOICER_URL_PREFIX: ${NEXT_PUBLIC_INVOICER_URL_PREFIX}
     container_name: "invoicer_app"
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - GOTENBERG_URL=http://gotenberg:3000
       - INVOICER_URL_PREFIX=${INVOICER_URL_PREFIX}
       - NEXT_PUBLIC_INVOICER_URL_PREFIX=${NEXT_PUBLIC_INVOICER_URL_PREFIX}
+      - NODE_ENV=production
     networks:
-      - default
-      - traefik_network
+      - invoicer_network
     volumes:
       - "billing_data:/app/data"
       - "./src/templates:/app/src/templates"
-      - "./public/uploads:/app/public/uploads"                    
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=${TRAEFIK_NETWORK}"
-      - "traefik.http.routers.invoicer-app.rule=Host(`${HOST}`)"
-      - "traefik.http.routers.invoicer-app.entrypoints=websecure"
-      - "traefik.http.routers.invoicer-app.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
-      - "traefik.http.services.invoicer-app.loadbalancer.server.port=3000"
+      - "./public/uploads:/app/public/uploads"
 
   gotenberg:
     image: "gotenberg/gotenberg:8"
     container_name: "invoicer_gotenberg"
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
     networks:
-      - default
+      - invoicer_network
 
 networks:
-  traefik_network:
-    external: true
-    name: ${TRAEFIK_NETWORK}
+  invoicer_network:
+    driver: bridge
 
 volumes:
   billing_data:
