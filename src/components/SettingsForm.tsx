@@ -27,6 +27,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
     const [includeMonth, setIncludeMonth] = useState(organization?.invoiceIncludeMonth ?? false);
     const [prefix, setPrefix] = useState(organization?.invoicePrefix ?? "INV-");
     const [sequence, setSequence] = useState(organization?.invoiceSequence ?? 1);
+    const [periodStartSequence, setPeriodStartSequence] = useState(organization?.invoicePeriodStartSequence ?? 1);
     const [digits, setDigits] = useState(organization?.invoiceDigits ?? 3);
 
     useEffect(() => {
@@ -37,6 +38,7 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
             setIncludeMonth(organization.invoiceIncludeMonth ?? false);
             setPrefix(organization.invoicePrefix ?? "INV-");
             setSequence(organization.invoiceSequence ?? 1);
+            setPeriodStartSequence(organization.invoicePeriodStartSequence ?? 1);
             setDigits(organization.invoiceDigits ?? 3);
         }
     }, [organization]);
@@ -392,6 +394,32 @@ export default function SettingsForm({ organization, dict, defaultLanguage, avai
                                         fontWeight: 'bold',
                                         color: '#374151'
                                     }}
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '1rem' }}>
+                            <div style={{ position: 'relative' }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-20px',
+                                    left: '0',
+                                    fontSize: '0.7rem',
+                                    color: '#6b7280',
+                                    whiteSpace: 'nowrap'
+                                }}>{dict.settings.form.numbering.period_start_sequence}</span>
+                                <input
+                                    type="number"
+                                    name="invoicePeriodStartSequence"
+                                    value={periodStartSequence}
+                                    onChange={e => setPeriodStartSequence(Math.max(1, parseInt(e.target.value) || 1))}
+                                    className={styles.input}
+                                    style={{
+                                        width: '110px',
+                                        textAlign: 'center',
+                                        background: 'white'
+                                    }}
+                                    min="1"
                                 />
                             </div>
                         </div>

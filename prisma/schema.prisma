@@ -136,6 +136,7 @@ model Organization {
   invoiceIncludeYear  Boolean  @default(false)
   invoiceIncludeMonth Boolean  @default(false)
   invoiceSequence     Int      @default(1)
+  invoicePeriodStartSequence Int @default(1)
   invoiceDigits       Int      @default(3) // Default to 001, 002...
 
   // Template Settings

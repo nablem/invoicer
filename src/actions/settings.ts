@@ -77,6 +77,7 @@ export async function updateOrganization(formData: FormData) {
                 invoiceIncludeYear: formData.get("invoiceIncludeYear") === "on",
                 invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
                 invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
+                invoicePeriodStartSequence: parseInt(formData.get("invoicePeriodStartSequence") as string) || 1,
                 invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
                 // Template Settings
                 invoiceTemplate: formData.get("invoiceTemplate") as string,
@@ -111,6 +112,7 @@ export async function updateOrganization(formData: FormData) {
                 invoiceIncludeYear: formData.get("invoiceIncludeYear") === "on",
                 invoiceIncludeMonth: formData.get("invoiceIncludeMonth") === "on",
                 invoiceSequence: parseInt(formData.get("invoiceSequence") as string) || 1,
+                invoicePeriodStartSequence: parseInt(formData.get("invoicePeriodStartSequence") as string) || 1,
                 invoiceDigits: parseInt(formData.get("invoiceDigits") as string) || 0,
                 // Template Settings
                 invoiceTemplate: (formData.get("invoiceTemplate") as string) || "invoice",

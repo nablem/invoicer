@@ -93,7 +93,7 @@ export async function createInvoice(formData: FormData) {
             let currentSequence = 1;
 
             if (organization) {
-                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoicePeriodStartSequence, invoiceDigits } = organization;
 
                 if (invoiceIncludeYear || invoiceIncludeMonth) {
                     const now = new Date();
@@ -110,7 +110,7 @@ export async function createInvoice(formData: FormData) {
                     });
 
                     if (invoicesInPeriod === 0) {
-                        currentSequence = 1;
+                        currentSequence = Math.max(1, invoicePeriodStartSequence || 1);
                     } else {
                         currentSequence = invoiceSequence;
                     }
@@ -270,7 +270,7 @@ export async function createInvoiceFromQuote(quoteId: string) {
             let currentSequence = 1;
 
             if (organization) {
-                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoicePeriodStartSequence, invoiceDigits } = organization;
 
                 if (invoiceIncludeYear || invoiceIncludeMonth) {
                     const now = new Date();
@@ -287,7 +287,7 @@ export async function createInvoiceFromQuote(quoteId: string) {
                     });
 
                     if (invoicesInPeriod === 0) {
-                        currentSequence = 1;
+                        currentSequence = Math.max(1, invoicePeriodStartSequence || 1);
                     } else {
                         currentSequence = invoiceSequence;
                     }
@@ -364,7 +364,7 @@ export async function duplicateInvoice(id: string) {
             let currentSequence = 1;
 
             if (organization) {
-                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoiceDigits } = organization;
+                const { invoicePrefix, invoiceIncludePrefix, invoiceIncludeYear, invoiceIncludeMonth, invoiceSequence, invoicePeriodStartSequence, invoiceDigits } = organization;
 
                 if (invoiceIncludeYear || invoiceIncludeMonth) {
                     const now = new Date();
@@ -381,7 +381,7 @@ export async function duplicateInvoice(id: string) {
                     });
 
                     if (invoicesInPeriod === 0) {
-                        currentSequence = 1;
+                        currentSequence = Math.max(1, invoicePeriodStartSequence || 1);
                     } else {
                         currentSequence = invoiceSequence;
                     }
