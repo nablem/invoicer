@@ -19,7 +19,7 @@ services:
     networks:
       - invoicer_network
     volumes:
-      - "billing_data:/app/data"
+      - "/data:/app/data"
       - "./src/templates:/app/src/templates"
       - "./public/uploads:/app/public/uploads"
 
@@ -35,6 +35,3 @@ services:
 networks:
   invoicer_network:
     driver: bridge
-
-volumes:
-  billing_data:
