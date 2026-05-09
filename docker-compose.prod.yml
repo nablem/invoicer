@@ -19,7 +19,7 @@ services:
     networks:
       - invoicer_network
     volumes:
-      - "/data:/app/data"
+      - "./data:/app/data"
       - "./src/templates:/app/src/templates"
       - "./public/uploads:/app/public/uploads"
 
