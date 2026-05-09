@@ -21,6 +21,7 @@ export default async function ClientDetailsPage({ params }: PageProps) {
     });
 
     const organization = await prisma.organization.findFirst();
+    const locale = organization?.language === "en" ? "en-GB" : "fr-FR";
 
     if (!client) {
         return <div>Client not found</div>;
@@ -67,7 +68,7 @@ export default async function ClientDetailsPage({ params }: PageProps) {
                                             {q.number}
                                         </Link>
                                     </td>
-                                    <td style={{ padding: '0.75rem' }}>{new Date(q.date).toLocaleDateString()}</td>
+                                    <td style={{ padding: '0.75rem' }}>{new Date(q.date).toLocaleDateString(locale)}</td>
                                     <td style={{ padding: '0.75rem' }}>{formatPrice(q.total, q.currency, organization?.decimalSeparator)}</td>
                                     <td style={{ padding: '0.75rem' }}>{dict.quotes.status[q.status as keyof typeof dict.quotes.status] || q.status}</td>
                                 </tr>
@@ -96,7 +97,7 @@ export default async function ClientDetailsPage({ params }: PageProps) {
                                             {i.number}
                                         </Link>
                                     </td>
-                                    <td style={{ padding: '0.75rem' }}>{new Date(i.date).toLocaleDateString()}</td>
+                                    <td style={{ padding: '0.75rem' }}>{new Date(i.date).toLocaleDateString(locale)}</td>
                                     <td style={{ padding: '0.75rem' }}>{formatPrice(i.total, i.currency, organization?.decimalSeparator)}</td>
                                     <td style={{ padding: '0.75rem' }}>{dict.invoices.status[i.status as keyof typeof dict.invoices.status] || i.status}</td>
                                 </tr>

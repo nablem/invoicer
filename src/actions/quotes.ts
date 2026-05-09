@@ -50,6 +50,10 @@ function parseItems(formData: FormData): QuoteItemInput[] {
     return items;
 }
 
+function formatQuoteSequence(sequence: number): string {
+    return sequence.toString().padStart(2, "0");
+}
+
 export async function createQuote(formData: FormData) {
     const clientId = formData.get("clientId") as string;
     const date = new Date(formData.get("date") as string);
@@ -75,13 +79,13 @@ export async function createQuote(formData: FormData) {
                 orderBy: { number: 'desc' },
             });
 
-            let nextSequence = 11;
+            let nextSequence = 1;
             if (lastQuote) {
                 const lastSequence = parseInt(lastQuote.number.substring(7), 10);
                 nextSequence = lastSequence + 1;
             }
 
-            const number = `${prefix}${nextSequence}`;
+            const number = `${prefix}${formatQuoteSequence(nextSequence)}`;
 
             const organization = await tx.organization.findFirst();
 
@@ -218,13 +222,13 @@ export async function duplicateQuote(id: string) {
                 orderBy: { number: 'desc' },
             });
 
-            let nextSequence = 11;
+            let nextSequence = 1;
             if (lastQuote) {
                 const lastSequence = parseInt(lastQuote.number.substring(7), 10);
-                nextSequence = isNaN(lastSequence) ? 11 : lastSequence + 1;
+                nextSequence = isNaN(lastSequence) ? 1 : lastSequence + 1;
             }
 
-            const number = `${prefix}${nextSequence}`;
+            const number = `${prefix}${formatQuoteSequence(nextSequence)}`;
 
             // Calculate new Due Date (default 30 days if not set, or keep relative difference? original request said "everything is copied")
             // "everything is copied and a new draft document is created" -> usually implies meaningful dates for the NEW document.

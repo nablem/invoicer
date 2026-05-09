@@ -205,6 +205,10 @@
             margin: 0;
         }
 
+        .notes-text {
+            white-space: pre-wrap;
+        }
+
         .footer-columns {
             display: flex;
             gap: 40px;
@@ -308,7 +312,7 @@
     <div class="section-title">Remarques</div>
     <div class="terms-content">
         {{#if notes}}
-        <p>{{notes}}</p>
+        <p class="notes-text">{{notes}}</p>
         {{/if}}
         <p>
             TVA non applicable — Autoliquidation par le preneur (Art. 283-2 du CGI et Art. 44 & 196 de la
@@ -323,7 +327,7 @@
     <div class="footer-column">
         <div class="section-title">Notes</div>
         <div class="terms-content">
-            <p>{{notes}}</p>
+            <p class="notes-text">{{notes}}</p>
         </div>
     </div>
     {{/if}}

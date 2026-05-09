@@ -32,6 +32,9 @@ export async function GET(req: NextRequest, { params }: Props) {
         decimalSeparator = organization.decimalSeparator;
     }
 
+    // Set locale based on organization language (both use DD/MM/YYYY format)
+    const locale = organization?.language === "en" ? "en-GB" : "fr-FR";
+
     let data;
     let filename;
 
@@ -45,8 +48,8 @@ export async function GET(req: NextRequest, { params }: Props) {
         // Format dates
         data = {
             ...quote,
-            date: new Date(quote.date).toLocaleDateString(),
-            dueDate: quote.dueDate ? new Date(quote.dueDate).toLocaleDateString() : null,
+            date: new Date(quote.date).toLocaleDateString(locale),
+            dueDate: quote.dueDate ? new Date(quote.dueDate).toLocaleDateString(locale) : null,
             total: formatCurrency(quote.total, decimalSeparator),
             items: quote.items.map(item => ({
                 ...item,
@@ -70,8 +73,8 @@ export async function GET(req: NextRequest, { params }: Props) {
 
         data = {
             ...invoice,
-            date: new Date(invoice.date).toLocaleDateString(),
-            dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : null,
+            date: new Date(invoice.date).toLocaleDateString(locale),
+            dueDate: invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString(locale) : null,
             total: formatCurrency(
                 invoice.isBalance && invoice.retainerDeductionAmount
                     ? (invoice.total - invoice.retainerDeductionAmount)
